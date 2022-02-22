@@ -7,10 +7,11 @@ class RequestOperator:
         self.prefix = prefix
         self.headers = headers
 
-    def send_request(self,uri_path,method,data):
+    def send_request(self, uri_path, method, data):
+        print(self.prefix, type(uri_path), method, data)
         url = self.prefix + uri_path
         data = data
-        res = requests.post(url,headers=self.headers, data=json.dumps(data))
+        res = requests.get(url,headers=self.headers, data=json.dumps(data))
         res_data = res.json()
         return res_data
 

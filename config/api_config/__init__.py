@@ -7,7 +7,7 @@ url_prefix = {
     'ims_service_26': 'http://10.0.0.26:28801',
 
     # 160测试环境
-    'env_160': 'https://test-scms.popicorns.com',
+    'evn_160': 'https://test-scms.popicorns.com',
 
     # 领域地址
     'receipt_service_160': 'http://10.0.0.160:8323',

@@ -5,9 +5,9 @@ from config.api_config.ums_api import ums_api_config
 from config.sys_config import env_config, user
 
 class UmsController(RequestOperator):
-    def __init__(self, prefix, headers):
-        self.prefix = prefix
-        self.headers = headers
+    def __init__(self):
+        self.prefix = env_config.get('app_prefix')
+        self.headers = {'Content-Type': 'application/json;charset=UTF-8'}
         super().__init__(self.prefix, self.headers)
 
     def get_public_key(self):
