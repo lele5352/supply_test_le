@@ -1,13 +1,14 @@
 import time
 
 from tools.request_operator import RequestOperator
+from tools.rsq_operator import encrypt_data
 from config.api_config.ums_api import ums_api_config
 from config.sys_config import env_config, user
 
 class UmsController(RequestOperator):
     def __init__(self):
         self.prefix = env_config.get('app_prefix')
-        self.headers = {'Content-Type': 'application/json;charset=UTF-8'}
+        self.headers = {'Content-Type': 'application/json;charset=UTF-8', "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
         super().__init__(self.prefix, self.headers)
 
     def get_public_key(self):
@@ -16,7 +17,6 @@ class UmsController(RequestOperator):
             't': timestamp
         })
         res = self.send_request(**ums_api_config['get_public_key'])
-        print(res)
         # 获取到公钥之后拼装begin和end返回
         key = res['data']
         begin = '-----BEGIN PUBLIC KEY-----\n'
@@ -66,12 +66,18 @@ class UmsController(RequestOperator):
             print('账号登录失败！')
             return None
 
-    def login(self):
-        headers = {"Accept":"application/json; charset=UTF-8",
-                   "Connection":"keep-alive",
-                   "Content-Type":"application/json; charset=UTF-8",
-                   "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
-                   }
+    def get_app_headers(self):
+        authorization = self.ums_login()
+        headers = {'Content-Type': 'application/json;charset=UTF-8', "Authorization": authorization, "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
+        return headers
+
+    def user_search(self):
+        self.headers = self.get_app_headers()
+        res = self.send_request(**ums_api_config['user_search'])
+        print(res)
+
+
+
 
 if __name__ == '__main__':
-    UmsController().get_public_key()
+    UmsController().user_search()

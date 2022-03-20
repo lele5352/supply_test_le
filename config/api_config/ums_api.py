@@ -15,5 +15,17 @@ ums_api_config = {
             "scope": "server",
             "username": 'huanglele@popicorns.com',
         }
+    },
+    "user_search": {
+        "uri_path": "/api/ec-ums-api/user/page",
+        "method": "get",
+        "data": {
+            "current": 1,
+            "size": 15,
+            "total": 100,
+            "username": "",
+            "nickname": "",
+            "delFlag": 0
+        }
     }
 }
