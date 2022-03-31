@@ -22,7 +22,7 @@ wms_api_config = {
             "skuName": None,
             "saleSkuCode": None,
             "saleSkuCodeLike": None,
-            "size": 10,
+            "size": 50,
             "current": 1
         },
     },

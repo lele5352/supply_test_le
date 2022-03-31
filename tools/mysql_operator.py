@@ -1,15 +1,15 @@
 import pymysql
-import json
 """
     目标：完成数据库相关工具类封装
     分析：
         1.主要方法
             假设：def get_sql_one(sql):获取数据库数据
         2.辅助方法
-            1.获取链接对象
-            2.获取游标对象
-            3.关闭游标对象
-            4.关闭链接对象
+            2.1获取链接对象
+            2.2获取游标对象
+            2.3执行sql语句
+            2.4关闭游标对象
+            2.5关闭链接对象
 """
 
 class MySqlOperator:
@@ -32,38 +32,63 @@ class MySqlOperator:
         return
 
     #主要方法  ->在外界调用此方法可以完成数据库相应的操作
+
     def get_sql_one(self, sql):
-        # cursor = self.get_cursor()
+        """
+        单个查询
+        :param sql:
+        :return:
+        """
         self.cour.execute(sql)
-        data = self.cour.fetchone()
-        self.close()
-        return data
+        return self.cour.fetchone()
 
     def get_sql_many(self, sql, num):
+        """
+        批量查询
+        :param sql:
+        :param num:
+        :return:
+        """
         self.cour.execute(sql)
-        data = self.cour.fetchmany(size=num)
-        self.close()
-        return data
+        return self.cour.fetchmany(size=num)
 
     def get_sql_all(self, sql):
+        """
+        全量查询
+        :param sql:
+        :return:
+        """
         self.cour.execute(sql)
-        data = self.cour.fetchall()
-        self.close()
-        return data
+        return self.cour.fetchall()
 
-    # 修改、删除、新增
-    def update_sql(self, sql):
+    # 单个数据-修改、删除、新增
+    def execute(self, sql):
         # 定义游标对象及数据变量
         sursor = None
         try:
-            self.cour.execute(sql)
-            # 提交事务
-            self.conn.commit()
+            if self.conn and self.cour:
+                self.cour.execute(sql)
+                # 提交事务
+                self.conn.commit()
         except Exception as e:
             # 事务回滚
             self.conn.rollback()
             print("get_sql_one error:", e)
-        finally:
+            self.close()
+
+    # 批量数据-修改、删除、新增
+    def executemany(self, sql):
+        # 定义游标对象及数据变量
+        sursor = None
+        try:
+            if self.conn and self.cour:
+                self.cour.executemany(sql)
+                # 提交事务
+                self.conn.commit()
+        except Exception as e:
+            # 事务回滚
+            self.conn.rollback()
+            print("get_sql_one error:", e)
             self.close()
 
 

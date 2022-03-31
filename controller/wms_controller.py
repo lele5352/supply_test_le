@@ -10,15 +10,18 @@ class WmsController(RequestOperator):
     def __init__(self):
         self.prefix = env_config.get("app_prefix")
         self.headers = UmsController().get_app_headers()
-        self.db = MySqlOperator(**env_config.get("mysql_info_ims"))
         super().__init__(self.prefix, self.headers)
 
+        self.db = MySqlOperator(**env_config.get("mysql_info_ims"))
+
+
     def get_warehouses_list(self):
-        timestamp = int(time.time()) * 1000
+        # timestamp = int(time.time()) * 1000
         wms_api_config.get("get_warehouses_list")["data"].update({
-            "t": timestamp
+            "t": self.time_tamp
         })
         res = self.send_request(**wms_api_config.get("get_warehouses_list"))
+        # print(res)
         return res.get("data")
 
     def get_warehouse_info(self, warehouse_code):
@@ -65,6 +68,7 @@ class WmsController(RequestOperator):
         :return: 字典类型的入库单信息，包含：{"entryorderId" : xxx,"entryorderCode": xxx}
         """
         sku_info = self.other_add_skuinfo_page(sku_code)
+
         sku_list = []
         for i in sku_info:
             if i.get("bomVersion") in bom_version:
@@ -135,7 +139,7 @@ class WmsController(RequestOperator):
 
     def del_wares(self):
         sql_ims_list = [
-            "DELETE FROM wares_inventory WHERE ware_sku_code LIKE '53586714577%';",
+            "DELETE FROM wares_inventory WHERE goods_sku_code = '53586714577';",
             "DELETE FROM goods_inventory WHERE goods_sku_code = '53586714577' ;",
             "DELETE FROM central_inventory WHERE goods_sku_code = '53586714577';",
         ]
@@ -154,16 +158,27 @@ class WmsController(RequestOperator):
         #     "DELETE FROM trf_transfer_pick_order WHERE warehouse_id =536;",
         #     "DELETE FROM trf_transfer_pick_order_detail WHERE warehouse_id = 536;"
         # ]
-        sql = "select * from wares_inventory where goods_sku_code = '53586714577';"
-        data = self.db.get_sql_all(sql)
-        print(data)
+
+        # sql = "select * from wares_inventory where goods_sku_code = '53586714577';"
+        # data = self.db.get_sql_all(sql)
+        for i in sql_ims_list:
+            self.db.executemany(i)
+        self.db.close()
+
+        print("清理数据完成")
+
+
+    def sdf(self):
+        pass
 
 
 
 if __name__ == '__main__':
-    # WmsController().switch_warehouse("UKBH01")
-    # WmsController().entryorder("53586714577", ["B", "D"], 5)
     wms = WmsController()
+    # wms.get_warehouses_list()
+    # wms.switch_warehouse("UKBH01")
+    # wms.entryorder("53586714577", ["B"], 2)
+
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
     wms.del_wares()
