@@ -7,9 +7,9 @@ import time
 
 class StockOpearationController(RequestOperator):
 
-    def __init__(self):
+    def __init__(self, ums):
         self.prefix = env_config.get("app_prefix")
-        self.headers = UmsController().get_app_headers()
+        self.headers = ums.header
         super().__init__(self.prefix, self.headers)
 
 
@@ -108,7 +108,8 @@ class StockOpearationController(RequestOperator):
 
 
 if __name__ == '__main__':
-    st = StockOpearationController()
+    ums = UmsController()
+    st = StockOpearationController(ums)
 
     st.adjust_receipt([{"waresSkuCode": "53586714577B01",
                         "storageLocationCode": "KW-SJQ-01",

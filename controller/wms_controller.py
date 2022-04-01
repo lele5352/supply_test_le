@@ -7,16 +7,19 @@ import time
 
 class WmsController(RequestOperator):
 
-    def __init__(self):
+    def __init__(self, ums):
         self.prefix = env_config.get("app_prefix")
-        self.headers = UmsController().get_app_headers()
+        self.headers = ums.header
         super().__init__(self.prefix, self.headers)
 
         self.db = MySqlOperator(**env_config.get("mysql_info_ims"))
 
 
     def get_warehouses_list(self):
-        # timestamp = int(time.time()) * 1000
+        """
+        获取仓库列表
+        :return:
+        """
         wms_api_config.get("get_warehouses_list")["data"].update({
             "t": self.time_tamp
         })
@@ -26,6 +29,7 @@ class WmsController(RequestOperator):
 
     def get_warehouse_info(self, warehouse_code):
         """
+        通过code获取仓库相关信息
         :param warehouse_code: 仓库code
         :return: 仓库信息，包含：{"id": xxx, "warehouse_id":xxx, "warehouse_name":xxx, "warehouse_code":xxx}
         """
@@ -42,6 +46,7 @@ class WmsController(RequestOperator):
 
     def switch_warehouse(self, warehouse_code):
         """
+        切换仓库
         :param warehouse_code: 仓库code
         :return:
         """
@@ -52,6 +57,7 @@ class WmsController(RequestOperator):
 
     def other_add_skuinfo_page(self, skucode):
         """
+        其他入库时所需sku信息相关参数
         :param skucode: 仓库sku
         :return:
         """
@@ -61,6 +67,7 @@ class WmsController(RequestOperator):
 
     def entryorder(self, sku_code, bom_version, num, operation_flag=1):
         """
+        新增其他入库单
         :param sku_code: 仓库sku
         :param bom_version: BOM版本
         :param num: 入库套数
@@ -93,7 +100,7 @@ class WmsController(RequestOperator):
 
     def get_sku_info_by_entryCode(self, entryorder_info):
         """
-
+        获取入库单内sku相关信息
         :param entryorder_info: 入库单相关信息，包含：entryorderId、entryorderCode
         :return: 入库单内的sku列表信息
         """
@@ -168,17 +175,51 @@ class WmsController(RequestOperator):
         print("清理数据完成")
 
 
-    def sdf(self):
-        pass
+    def demand_list(self,**kwargs):
+        wms_api_config.get("demand_list")["data"].update({
+            "states": kwargs.get("states"),
+            "receiveWarehouseCode": kwargs.get("receiveWarehouseCode"),
+            "demandCodeList": kwargs.get("demandCodeList"),
+            "goodsSkuCodeList": kwargs.get("goodsSkuCodeList"),
+            "startCreateTime": kwargs.get("startCreateTime"),
+            "endCreateTime": kwargs.get("endCreateTime"),
+            "sourceCodeList": kwargs.get("sourceCodeList"),
+            "customerType": kwargs.get("customerType"),
+            "createUserId": kwargs.get("createUserId"),
+            "demandType": kwargs.get("demandType"),
+            "cancelFlag": kwargs.get("cancelFlag"),
+            "saleOrderCodes": kwargs.get("saleOrderCodes")
+        })
+        res = self.send_request(**wms_api_config.get("demand_list"))
+        return res
+
+    def demand_info(self, demands):
+        demands_info = []
+        for i in demands:
+            demands_info.append({
+                "id": i.get("id"),
+                "demandCode": i.get("demandCode")
+            })
+        print(demands_info)
+        return demands_info
+
+
+
+
 
 
 
 if __name__ == '__main__':
-    wms = WmsController()
-    # wms.get_warehouses_list()
+    ums = UmsController()
+    wms = WmsController(ums)
+    wms.get_warehouses_list()
     # wms.switch_warehouse("UKBH01")
     # wms.entryorder("53586714577", ["B"], 2)
 
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
-    wms.del_wares()
+    # wms.del_wares()
+    # kw = {
+    #     "states": [0]
+    # }
+    # wms.demand_list(**kw)

@@ -31,7 +31,7 @@ wms_api_config = {
         "uri_path": "/api/ec-wms-api/entryorder",
         "method": "post",
         "data": {
-            "entryOrderId":None,
+            "entryOrderId": None,
             "entryOrderType": 3,
             "eta": 1642403631000,
             "supplierCode": None,
@@ -49,9 +49,9 @@ wms_api_config = {
         "uri_path": "/api/ec-wms-api/entryorder/getSkuInfoByEntryCode",
         "method": "post",
         "data": {
-          "entryOrderCode": "RK2202280011",
-          "entryOrderId": 1837,
-          "size": 100
+            "entryOrderCode": "RK2202280011",
+            "entryOrderId": 1837,
+            "size": 100
         },
     },
 
@@ -69,6 +69,34 @@ wms_api_config = {
         "data": {
             "entryOrderId": 1234,
             "skuList": []
+        },
+    },
+
+    "demand_list": {
+        "uri_path": "/api/ec-wms-api/transferOut/demand/list",
+        "method": "post",
+        "data": {
+            "current": 1,
+            "size": 9999,
+            "states": [
+            ],
+            "receiveWarehouseCode": "",
+            "demandCodeList": None,
+            "goodsSkuCodeList": None,
+            "startCreateTime": "",
+            "endCreateTime": "",
+            "sourceCodeList": None,
+            "customerType": "",
+            "createUserId": 10,
+            "demandType": "",
+            "cancelFlag": "",
+            "sortField": [
+                {
+                    "field": "create_time",
+                    "type": "DESC"
+                }
+            ],
+            "saleOrderCodes": None
         },
     },
 }
