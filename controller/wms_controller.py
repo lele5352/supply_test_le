@@ -52,8 +52,11 @@ class WmsController(RequestOperator):
         """
         warehouse_info = self.get_warehouse_info(warehouse_code)
         wms_api_config.get("switch_warehouse")["data"].update({"dataPermId": warehouse_info.get("id")})
-        res = self.send_request(**wms_api_config.get("switch_warehouse"))
-        return res
+        try:
+            res = self.send_request(**wms_api_config.get("switch_warehouse"))
+            return res
+        except Exception as e:
+            raise Exception('err_info:', e)
 
     def other_add_skuinfo_page(self, skucode):
         """
@@ -172,10 +175,10 @@ class WmsController(RequestOperator):
             self.db.executemany(i)
         self.db.close()
 
-        print("清理数据完成")
+        print("数据清理完成")
 
-
-    def demand_list(self,**kwargs):
+    #调拨需求查询，获取调拨需求相关数据
+    def demand_list(self, **kwargs):
         wms_api_config.get("demand_list")["data"].update({
             "states": kwargs.get("states"),
             "receiveWarehouseCode": kwargs.get("receiveWarehouseCode"),
@@ -190,18 +193,58 @@ class WmsController(RequestOperator):
             "cancelFlag": kwargs.get("cancelFlag"),
             "saleOrderCodes": kwargs.get("saleOrderCodes")
         })
-        res = self.send_request(**wms_api_config.get("demand_list"))
-        return res
+        try:
+            res = self.send_request(**wms_api_config.get("demand_list"))
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
 
     def demand_info(self, demands):
-        demands_info = []
-        for i in demands:
-            demands_info.append({
-                "id": i.get("id"),
-                "demandCode": i.get("demandCode")
-            })
-        print(demands_info)
-        return demands_info
+        if demands:
+            demands_info = []
+            for i in demands:
+                demands_info.append({
+                    "id": i.get("id"),
+                    "demandCode": i.get("demandCode")
+                })
+            print(demands_info)
+            return demands_info
+        else:
+            print("传入需求为空！")
+
+
+    def picking_create(self, demandes_info, pick_type=1):
+        """
+        新增拣货单
+        :param demandes_info:
+        :param pick_type: 1-纸质单，2-PDA，默认值为：1
+        :return:
+        """
+        demand_code_list = []
+        for item in demandes_info:
+            demand_code_list.append(str(item.get("demandCode")))
+        wms_api_config.get("picking_create")["data"].update({
+            "demandCodes": demand_code_list,
+            "pickType": pick_type
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("picking_create"))
+            print(res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def assign_pick_user(self, pick_no):
+        wms_api_config.get("assign_pick_user")["data"].update({
+            {"pickOrderNos": [pick_no]}
+        })
+
+
+
+
+
+
 
 
 
@@ -212,14 +255,20 @@ class WmsController(RequestOperator):
 if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
-    wms.get_warehouses_list()
+    # wms.get_warehouses_list()
     # wms.switch_warehouse("UKBH01")
-    # wms.entryorder("53586714577", ["B"], 2)
+    # wms.entryorder("53586714577", ["G","F"], 2)
 
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
     # wms.del_wares()
-    # kw = {
-    #     "states": [0]
-    # }
-    # wms.demand_list(**kw)
+    kw = {
+        "states": [0],
+        "startCreateTime": 1649409940000,
+        "endCreateTime": int(time.time()*1000),
+    }
+    demands = wms.demand_list(**kw)
+    print(demands)
+    demands_list = demands.get("data")["records"]
+    demands_info = wms.demand_info(demands_list)
+    wms.picking_create(demands_info)

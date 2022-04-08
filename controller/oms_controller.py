@@ -41,23 +41,24 @@ class OmsController(RequestOperator):
         print("err_info：无此仓库编码！")
 
     # 新增调拨需求时，获取sku相关数据信息
-    def list_sku(self, type, skucode):
+    def list_sku(self, skutype, skucode):
         """
         :param type: 1-销售sku，2-部件
         :param saleskucode:可以为销售sku，也可以为仓库sku
         :return: sku_info:sku信息
         """
         oms_api_config.get("list_product")["data"].update({
-            "type": type,
+            "type": skutype,
             "skuCode": skucode,
             "t": self.time_tamp,
         })
         try:
             res = self.send_request(**oms_api_config.get("list_product"))
             print(res.get("data")["records"])
+            return res
         except Exception as e:
-            raise Exception('err_info:{}'.format(e))
-        return res
+            raise Exception('err_info:', e)
+
 
     # 新增调拨需求
     def demand_create(self, delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
@@ -72,6 +73,7 @@ class OmsController(RequestOperator):
         :param num:数量
         :return:
         """
+        #获取调拨相关仓库信息
         delivery_warehouse_info = self.get_warehouse_info(delivery_warehouse_code)
         receive_warehouse_info = self.get_warehouse_info(receive_warehouse_code)
         if delivery_target_warehouse_code:
@@ -94,6 +96,7 @@ class OmsController(RequestOperator):
             receive_target_warehouse_name = receive_target_warehouse_info.get("warehouseName")
 
         details = []
+        #组装调拨需求sku相关信息参数
         for item in sku_info:
             sku_detail = {
                 "itemSkuCode": item["skuCode"],
@@ -122,8 +125,7 @@ class OmsController(RequestOperator):
             res = self.send_request(**oms_api_config.get("demand_create"))
             print(res)
         except Exception as e:
-            print(Exception("err_info:{}".format(e)))
-            raise (Exception("err_info:{}".format(e)))
+            raise (Exception("err_info:", e))
 
 
 
@@ -133,4 +135,4 @@ if __name__ == '__main__':
     oms = OmsController(ums)
     # oms.list_sku(1, "53586714577")
     sku_info = [{"skuCode": "53586714577", "productNameCn": "决明子", "type": 1, "typeName": "销售sku", "relateSku": None, "categoryName": "家具>家具套装>餐桌桌椅套装", "mainUrl": "https://img.popicorns.com/dev/file/2021/11/08/8cbba5e1160a48e9bd9b43e54450ab7c.jpg"}]
-    oms.demand_create("UKBH01", "", "UKBH02", "", sku_info, 1)
+    oms.demand_create("UKBH01", "", "UKBH02", "", sku_info, 2)

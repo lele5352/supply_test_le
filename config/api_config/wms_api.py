@@ -1,4 +1,5 @@
 wms_api_config = {
+    # 获取全部仓库信息列表
     "get_warehouses_list": {
         "uri_path": "/api/ec-wms-api/data/permission/user/list?t=1645604117257",
         "method": "get",
@@ -7,12 +8,13 @@ wms_api_config = {
         }
     },
 
+    # 切换仓库
     "switch_warehouse": {
         "uri_path": "/api/ec-wms-api/data/permission/switchdefault",
         "method": "put",
         "data": {"dataPermId": 1}
     },
-
+    # 其他入添加商品时，查询接口
     "other_add_skuinfo_page": {
         "uri_path": "/api/ec-wms-api/entryorder/addSkuInfoPage",
         "method": "post",
@@ -26,7 +28,7 @@ wms_api_config = {
             "current": 1
         },
     },
-
+    # 其他入库单
     "entryorder": {
         "uri_path": "/api/ec-wms-api/entryorder",
         "method": "post",
@@ -44,7 +46,7 @@ wms_api_config = {
             "operationFlag": 1
         },
     },
-
+    # 获取其他入库单内sku信息
     "get_sku_info_by_entryCode": {
         "uri_path": "/api/ec-wms-api/entryorder/getSkuInfoByEntryCode",
         "method": "post",
@@ -54,7 +56,7 @@ wms_api_config = {
             "size": 100
         },
     },
-
+    # 获取入库单信息
     "get_entry_order_by_id": {
         "uri_path": "/api/ec-wms-api/entryorder/getEntryOrderById/",
         "method": "get",
@@ -62,7 +64,7 @@ wms_api_config = {
             "t": 1645604117257,
         },
     },
-
+    # 其他入库-上架
     "put_on_the_shelf": {
         "uri_path": "/api/ec-wms-api/entryorder/putOnTheShelf",
         "method": "post",
@@ -71,7 +73,7 @@ wms_api_config = {
             "skuList": []
         },
     },
-
+    # 调拨需求列表查询
     "demand_list": {
         "uri_path": "/api/ec-wms-api/transferOut/demand/list",
         "method": "post",
@@ -98,5 +100,19 @@ wms_api_config = {
             ],
             "saleOrderCodes": None
         },
+    },
+
+    # 创建拣货单
+    "picking_create": {
+        "uri_path": "/api/ec-wms-api/transferOut/picking/create",
+        "method": "post",
+        "data": {"demandCodes": ["XQ2204080002"], "pickType": 1},
+    },
+
+    # 分配拣货人
+    "assign_pick_user": {
+        "uri_path": "/api/ec-wms-api/transferOut/picking/assignPickUser",
+        "method": "post",
+        "data": {"pickOrderNos": [], "pickUsername": "黄乐乐", "pickUserId": "10"},
     },
 }

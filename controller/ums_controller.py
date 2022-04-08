@@ -62,7 +62,9 @@ class UmsController(RequestOperator):
         try:
             res = self.send_request(**ums_api_config['login'])
             authorization_str = res['data']['tokenHead'] + ' ' + res['data']['token']
-            return authorization_str
+            headers = {'Content-Type': 'application/json;charset=UTF-8', "Authorization": authorization_str,
+                       "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
+            return headers
         except:
             print('账号登录失败！')
             return None

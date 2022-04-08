@@ -53,16 +53,18 @@ class TransferMaker:
         pass
 
     def transfer_maker(self, delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
-                      receive_target_warehouse_code, num):
+                      receive_target_warehouse_code, num, skucode, sku_type):
         # 切换到相关仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
-
-        sku_list = self.oms.list_sku()
+        # 查获取调拨需求sku相关信息
+        sku_list = self.oms.list_sku(sku_type, skucode)
         sku_info = sku_list.get("data")["records"]
 
         # 新增调拨需求
-        self.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
+        self.oms.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
                       receive_target_warehouse_code, sku_info, num)
+
+
 
 
 
@@ -71,7 +73,7 @@ class TransferMaker:
 if __name__ == '__main__':
     transfer = TransferMaker()
     #其他入库
-    transfer.add_other_stock("UKBH01", "53586714577", ["B","D"], 3, "KW-SJQ-01")     #其他入库添加库存
+    # transfer.add_other_stock("UKBH01", "53586714577", ["G", "F"], 3, "KW-SJQ-01")     #其他入库添加库存
     """
     # 调整单
     transfer.add_adjust_stock("UKBH01",
@@ -83,4 +85,4 @@ if __name__ == '__main__':
                               1, 0, 1)
     """
     # 新增调拨需求
-    # transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1)
+    transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1)
