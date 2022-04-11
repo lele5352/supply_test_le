@@ -127,17 +127,19 @@ wms_api_config = {
     "do_picking": {
         "uri_path": "/api/ec-wms-api/transferOut/picking/doPicking",
         "method": "post",
-        "data": {"pickOrderNo": "",
-                 "details": "",
-                 }
+        "data": {
+            "pickOrderNo": "",
+            "details": "",
+        }
     },
 
     # 按需装托
-    "do_picking": {
+    "sssss": {
         "uri_path": "/api/ec-wms-api/transferOut/picking/doPicking",
         "method": "post",
-        "data": {"pickOrderNo": "",
-                 "details": "",
-                 }
+        "data": {
+            "pickOrderNo": "",
+            "details": "",
+        }
     },
 }

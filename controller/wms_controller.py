@@ -252,19 +252,43 @@ class WmsController(RequestOperator):
             raise Exception("err_info:", e)
 
     def picking_detail(self, pick_order_no):
+        """
+        获取拣货单详情（为“确认拣货”参数组装提供数据）
+        @param pick_order_no: 拣货单号
+        @return:
+        """
         wms_api_config.get("picking_detail")["uri_path"] = "/api/ec-wms-api/transferOut/picking/detail/{0}".format(pick_order_no)
         wms_api_config.get("picking_detail")["data"].update({
             "t": self.time_tamp
         })
         try:
             res = self.send_request(**wms_api_config.get("picking_detail"))
+            picking_info = res.get("code")["details"]
+            print(res)
+            return pick_order_no, picking_info
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def do_picking(self, pick_order_no, picking_info):
+        """
+        确认拣货
+        @param pick_order_no: 拣货单号
+        @param picking_info: 拣货单信息，可由“picking_detail()”函数查询获取
+        @return:
+        """
+        wms_api_config.get("do_picking")["data"].update({
+            "pickOrderNo": pick_order_no,
+            "details": picking_info
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("do_picking"))
             print(res)
             return res
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def do_picking(self):
-        pass
+
+
 
 
 
@@ -298,5 +322,5 @@ if __name__ == '__main__':
     # demands_info = wms.demand_info(demands_list)
     # wms.picking_create(demands_info)
 
-    # wms.assign_pick_user("DJH2204080002")
-    wms.picking_detail("DJH2204080002")
+    wms.assign_pick_user("DJH2204110002")
+    wms.picking_detail("DJH2204110002")
