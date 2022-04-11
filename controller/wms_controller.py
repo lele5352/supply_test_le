@@ -235,10 +235,36 @@ class WmsController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def assign_pick_user(self, pick_no):
+    def assign_pick_user(self, pick_order_no):
+        """
+        分配拣货人
+        :param pick_order_no: 拣货单号
+        :return:
+        """
         wms_api_config.get("assign_pick_user")["data"].update({
-            {"pickOrderNos": [pick_no]}
+            "pickOrderNos": [pick_order_no]
         })
+        try:
+            res = self.send_request(**wms_api_config.get("assign_pick_user"))
+            print(res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def picking_detail(self, pick_order_no):
+        wms_api_config.get("picking_detail")["uri_path"] = "/api/ec-wms-api/transferOut/picking/detail/{0}".format(pick_order_no)
+        wms_api_config.get("picking_detail")["data"].update({
+            "t": self.time_tamp
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("picking_detail"))
+            print(res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def do_picking(self):
+        pass
 
 
 
@@ -267,8 +293,10 @@ if __name__ == '__main__':
         "startCreateTime": 1649409940000,
         "endCreateTime": int(time.time()*1000),
     }
-    demands = wms.demand_list(**kw)
-    print(demands)
-    demands_list = demands.get("data")["records"]
-    demands_info = wms.demand_info(demands_list)
-    wms.picking_create(demands_info)
+    # demands = wms.demand_list(**kw)
+    # demands_list = demands.get("data")["records"]
+    # demands_info = wms.demand_info(demands_list)
+    # wms.picking_create(demands_info)
+
+    # wms.assign_pick_user("DJH2204080002")
+    wms.picking_detail("DJH2204080002")

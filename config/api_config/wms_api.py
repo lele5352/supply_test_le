@@ -113,6 +113,22 @@ wms_api_config = {
     "assign_pick_user": {
         "uri_path": "/api/ec-wms-api/transferOut/picking/assignPickUser",
         "method": "post",
-        "data": {"pickOrderNos": [], "pickUsername": "黄乐乐", "pickUserId": "10"},
+        "data": {"pickOrderNos": ["DJH2204080002"], "pickUsername": "黄乐乐", "pickUserId": "10"},
+    },
+
+    # 查询拣货单详情
+    "picking_detail": {
+        "uri_path": "/api/ec-wms-api/transferOut/picking/detail/DJH2204080002",
+        "method": "get",
+        "data": {"t": "1642684741035"},
+    },
+
+    # 确认拣货
+    "do_picking": {
+        "uri_path": "/api/ec-wms-api/transferOut/picking/doPicking",
+        "method": "post",
+        "data": {"pickOrderNo": "",
+                 "details": "",
+                }
     },
 }
