@@ -10,3 +10,5 @@ user = {
     'username': 'huanglele@popicorns.com',
     'password': '123456'
 }
+
+url = "http://10.0.0.127:8192/#/task/mylist",  # 160发版机
