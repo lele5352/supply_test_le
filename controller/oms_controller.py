@@ -6,7 +6,7 @@ from controller.ums_controller import UmsController
 
 class OmsController(RequestOperator):
     def __init__(self, ums):
-        self.prefix = env_config.get("app_prefix")
+        self.prefix = env_config.get("web_prefix")
         self.headers = ums.header
         super().__init__(self.prefix, self.headers)
 

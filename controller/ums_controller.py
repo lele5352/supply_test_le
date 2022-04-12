@@ -7,7 +7,7 @@ from config.sys_config import env_config, user
 
 class UmsController(RequestOperator):
     def __init__(self):
-        self.prefix = env_config.get('app_prefix')
+        self.prefix = env_config.get('web_prefix')
         self.headers = {'Content-Type': 'application/json;charset=UTF-8', "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
         self.header = self.ums_login()
         super().__init__(self.prefix, self.headers)

@@ -14,7 +14,8 @@ env_configs = {
     },
     #160环境
     'test_160': {
-        'app_prefix': url_prefix.get("evn_160"),
+        'app_prefix': url_prefix.get("evn_160_app"),
+        'web_prefix': url_prefix.get("evn_160_web"),
         'transfer_service_prefix': url_prefix.get("transfer_service_160"),
         'ims_service_prefix': url_prefix.get("ims_service_160"),
 

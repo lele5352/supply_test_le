@@ -8,7 +8,7 @@ import time
 class WmsController(RequestOperator):
 
     def __init__(self, ums):
-        self.prefix = env_config.get("app_prefix")
+        self.prefix = env_config.get("web_prefix")
         self.headers = ums.header
         super().__init__(self.prefix, self.headers)
 
@@ -302,11 +302,14 @@ class WmsController(RequestOperator):
 
 
 
+
+
+
 if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    # wms.switch_warehouse("UKBH01")
+    wms.switch_warehouse("UKBH01")
     # wms.entryorder("53586714577", ["G","F"], 2)
 
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
@@ -322,5 +325,5 @@ if __name__ == '__main__':
     # demands_info = wms.demand_info(demands_list)
     # wms.picking_create(demands_info)
 
-    wms.assign_pick_user("DJH2204110002")
-    wms.picking_detail("DJH2204110002")
+    # wms.assign_pick_user("DJH2204110002")
+    # wms.picking_detail("DJH2204110002")

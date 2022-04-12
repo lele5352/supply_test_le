@@ -133,13 +133,114 @@ wms_api_config = {
         }
     },
 
-    # 按需装托
-    "sssss": {
-        "uri_path": "/api/ec-wms-api/transferOut/picking/doPicking",
+    # PDA-按需装托时，获取拣货单详情
+    "pda_picking_detail": {
+        "uri_path": "/api/ec-wms-api/transferOut/picking/demand/detail",
+        "method": "get",
+        "data": {
+            "pickOrderNo": "",
+        }
+    },
+
+    # PDA-按需装托
+    "pda_submit_tray_info": {
+        "uri_path": "/api/ec-wms-api/transferOut/pda/submitTrayInfo",
+        "method": "post",
+        "data": [{
+            "storageLocationCode": "",
+            "pickOrderNo": "",
+            "trayInfos": []
+        }]
+    },
+
+    # PDA-不成套移出
+    "pda_move_storage": {
+        "uri_path": "/api/ec-wms-api/transferOut/pda/moveStorage",
+        "method": "post",
+        "data": {
+            "fromStorageLocationCode": "KW-RQ-TP-01",
+            "waresSkuCode": "53586714577B01",
+            "toStorageLocationCode": "KW-RQ-YK-01",
+            "pickOrderNo": ""
+        }
+    },
+
+    # PDA-创建出库单
+    "pda_finish_picking": {
+        "uri_path": "/api/ec-wms-api/transferOut/pda/finishPacking",
         "method": "post",
         "data": {
             "pickOrderNo": "",
-            "details": "",
+            "storageLocationCodes": ""
         }
     },
+
+    # PDA-查询出库箱单
+    "pda_search_box_out_list": {
+        "uri_path": "/api/ec-wms-api/transferOut/box/list",
+        "method": "post",
+        "data": {
+            "current": 1,
+            "size": 1,
+            "boxNos": [],
+            "storageLocationCodes": [],
+            "transferOutNos": [],
+            "state": "",
+            "receiveWarehouseCode": "",
+            "createUsername": "",
+            "startCreateTime": "",
+            "endCreateTime": "",
+            "startUpdateTime": "",
+            "endUpdateTime": "",
+            "sortField": [
+                {
+                    "field": "create_time",
+                    "type": "DESC"
+                }
+            ],
+            "saleSkuCodes": [],
+            "waresSkuCodes": []
+        },
+    },
+
+    # PDA-调拨复核
+    "pda_review_submit": {
+        "uri_path": "/api/ec-wms-api/transferOut/box/review/submit",
+        "method": "post",
+        "data": {
+            "boxNo": "",
+            "storageLocationCode": ""
+        }
+    },
+
+    # PDA-调拨出库-改单
+    "pda_change_order": {
+        "uri_path": "/api/ec-wms-api/transferOut/modify/changeOrder",
+        "method": "post",
+        "data": {
+            "transferOutNo": "",
+            "changeSkuDetailList": []
+        }
+    },
+
+    # PDA-调拨发货-扫描箱单
+    "pda_handover_bind": {
+        "uri_path": "/api/ec-wms-api/transferOut/handover/bind",
+        "method": "post",
+        "data": {
+            "boxNo": "DC2204090001-1",
+            "handoverNo": None,
+            "receiveWarehouseCode": None
+        }
+    },
+
+    # PDA-调拨发货-发货
+    "pda_delivery_confirm": {
+        "uri_path": "/api/ec-wms-api/transferOut/handover/delivery/confirm",
+        "method": "post",
+        "data": {
+            "handoverNo": "",
+        }
+    },
+
 }

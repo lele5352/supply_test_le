@@ -19,7 +19,8 @@ url_prefix = {
 
     # -------------------160配置--------------------
     # 平台域名
-    'evn_160': 'https://test-scms.popicorns.com',
+    'evn_160_web': 'https://test-scms.popicorns.com',
+    'evn_160_app': 'https://test160.popicorns.com',
     # 领域地址
     'receipt_service_160': 'http://10.0.0.160:8323',
     'delivery_service_160': 'http://10.0.0.160:8330',
