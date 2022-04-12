@@ -201,6 +201,11 @@ class WmsController(RequestOperator):
 
 
     def demand_info(self, demands):
+        """
+        获取调拨需求相关信息
+        @param demands:
+        @return:
+        """
         if demands:
             demands_info = []
             for i in demands:
@@ -263,9 +268,9 @@ class WmsController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("picking_detail"))
-            picking_info = res.get("code")["details"]
-            print(res)
-            return pick_order_no, picking_info
+            picking_info = res.get("data")["details"]
+            print(picking_info)
+            return picking_info
         except Exception as e:
             raise Exception("err_info:", e)
 
@@ -276,6 +281,11 @@ class WmsController(RequestOperator):
         @param picking_info: 拣货单信息，可由“picking_detail()”函数查询获取
         @return:
         """
+        # 修改实实际拣货的数量
+        for item1 in picking_info:
+            item1.update({
+                "realPickQty": item1.get("shouldPickQty")
+            })
         wms_api_config.get("do_picking")["data"].update({
             "pickOrderNo": pick_order_no,
             "details": picking_info
@@ -286,20 +296,6 @@ class WmsController(RequestOperator):
             return res
         except Exception as e:
             raise Exception("err_info:", e)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -317,13 +313,15 @@ if __name__ == '__main__':
     # wms.del_wares()
     kw = {
         "states": [0],
-        "startCreateTime": 1649409940000,
+        "startCreateTime": "1649760048000",
         "endCreateTime": int(time.time()*1000),
     }
     # demands = wms.demand_list(**kw)
     # demands_list = demands.get("data")["records"]
     # demands_info = wms.demand_info(demands_list)
-    # wms.picking_create(demands_info)
+    # res = wms.picking_create(demands_info)
+    # picking_order_no = res.get("data")
 
-    # wms.assign_pick_user("DJH2204110002")
-    # wms.picking_detail("DJH2204110002")
+    # wms.assign_pick_user("DJH2204120035")
+    picking_info = wms.picking_detail("DJH2204120035")
+    wms.do_picking("DJH2204120035", picking_info)

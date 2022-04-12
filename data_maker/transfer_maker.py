@@ -1,6 +1,7 @@
 from controller.wms_controller import WmsController
 from controller.stockoperation_controller import StockOpearationController
 from controller.oms_controller import OmsController
+from controller.pda_controller import PdaController
 from config.sys_config import env_config
 from data_maker import *
 import time
@@ -13,6 +14,7 @@ class TransferMaker:
         self.wms = WmsController(ums)
         self.st = StockOpearationController(ums)
         self.oms = OmsController(ums)
+        self.pda = PdaController(ums)
         # super().__init__(self.prefix, self.headers)
 
 
@@ -53,7 +55,7 @@ class TransferMaker:
         pass
 
     def transfer_maker(self, delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
-                      receive_target_warehouse_code, num, skucode, sku_type):
+                      receive_target_warehouse_code, num, skucode, sku_type, location_code_list):
         # 切换到相关仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
         # 查获取调拨需求sku相关信息
@@ -61,9 +63,52 @@ class TransferMaker:
         sku_info = sku_list.get("data")["records"]
 
         # 新增调拨需求
-        self.oms.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
-                      receive_target_warehouse_code, sku_info, num)
+        # self.oms.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
+        #               receive_target_warehouse_code, sku_info, num)
 
+        #查询调拨需求请求参数
+        kw = {
+            "states": [0],
+            "startCreateTime": int(time.time() * 1000) - 3000000,
+            "endCreateTime": int(time.time() * 1000),
+        }
+        # 查询最近3秒生成的调拨需求列表
+        demands = self.wms.demand_list(**kw)
+        # 获取调拨需求列表
+        demands_list = demands.get("data")["records"]
+        # 获取调拨需求相关的信息
+        demands_info = self.wms.demand_info(demands_list)
+        # 新增调拨拣货单
+        res = self.wms.picking_create(demands_info)
+        # 获取调拨拣货单号
+        pick_order_no = res.get("data")
+        # 分配拣货人
+        self.wms.assign_pick_user(pick_order_no)
+        # 获取拣货单信息
+        picking_info = self.wms.picking_detail(pick_order_no)
+        # 确认拣货--当前是完全拣货
+        self.wms.do_picking(pick_order_no, picking_info)
+
+        # PDA-按需装托时，扫码拣货单号，获取拣货单信息
+        info = self.pda.pda_picking_detail(pick_order_no)
+        picking_detail_info = info.get("data")
+        # 按需装托
+        self.pda.pda_submit_tray_info(location_code_list, picking_detail_info)
+
+        location_code = location_code_list[0]
+        # 装托完成，创建出库单以及生成箱单
+        self.pda.pda_finish_picking(pick_order_no, location_code)
+        # 创建出库单结果： {'code': 200, 'message': '操作成功', 'data': 'DC2204120031'}
+        """
+        # 调拨复核
+        box_no = "DC2204120030-1"
+        self.pda.pda_review_submit(box_no, location_code_list[0])
+        # 调拨发货交接
+        self.pda.pda_handover_bind(box_no)
+        hand_over_no = "DBJJ2204120030"
+        # 调拨发货
+        self.pda.pda_delivery_confirm(hand_over_no)
+        """
 
 
 
@@ -85,4 +130,4 @@ if __name__ == '__main__':
                               1, 0, 1)
     """
     # 新增调拨需求
-    transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1)
+    transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1, "53586714577", 1, ["KW-RQ-TP-01"])
