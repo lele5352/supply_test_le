@@ -23,7 +23,7 @@ class PdaController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("pda_picking_detail"))
-            print(res)
+            print("拣货单详情：", res)
             return res
         except Exception as e:
             raise Exception("err_info:", e)
@@ -59,6 +59,7 @@ class PdaController(RequestOperator):
             wms_api_config.get("pda_submit_tray_info")["data"] = data
             try:
                 res = self.send_request(**wms_api_config.get("pda_submit_tray_info"))
+                print("按需装托：", res)
                 return res
             except Exception as e:
                 raise Exception("err_info:", e)
@@ -74,9 +75,10 @@ class PdaController(RequestOperator):
 
     def pda_finish_picking(self, pick_order_no, location_code):
         """
-        创建出库单
-        :param location_code:
-        :return:
+        创建调拨出库单
+        @param pick_order_no:
+        @param location_code:
+        @return:
         """
         wms_api_config.get("pda_finish_picking")["data"].update({
             "pickOrderNo": pick_order_no,
@@ -84,6 +86,7 @@ class PdaController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("pda_finish_picking"))
+            print(wms_api_config.get("pda_finish_picking"))
             print("创建出库单结果：", res)  # 创建出库单结果： {'code': 200, 'message': '操作成功', 'data': 'DC2204120031'}
             return res
         except Exception as e:
@@ -148,31 +151,37 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def test_box_info_list(self, transfer_out_no):
-        # 查询调拨出库单下的箱单列表
-        kw = {
-            "transferOutNos": [transfer_out_no],
-        }
 
-        res = self.wms.search_box_out_list(**kw)
-        box_no_info = res.get("data")["records"]
-        # 获取箱单和库位对应的相关信息
-        box_no_list = []
-        for i in box_no_info:
-            about_box = {
-                "boxNo": i.get("boxNo"),
-                "storageLocationCode": i.get("storageLocationCode")
-            }
-            box_no_list.append(about_box)
-        return box_no_list
-
-
-    def pda_transfer_in_confirm(self):
-        pass
+    def pda_transfer_in_confirm(self, hand_over_no):
+        """
+        调拨入库-确认收货
+        @param hand_over_no:
+        @return:
+        """
+        wms_api_config.get("pda_transfer_in_confirm")["data"].update({
+            "handoverNo": hand_over_no,
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("pda_transfer_in_confirm"))
+            print("调拨入库-确认收货结果：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
 
 
-    def pda_transfer_in_receive_all(self):
-        pass
+
+    def pda_transfer_in_receive_all(self, box_no, storage_location_code, transfer_in_no):
+        wms_api_config.get("pda_transfer_in_receive_all")["data"].update({
+            "boxNo": box_no,
+            "storageLocationCode": storage_location_code,
+            "transferInNo": transfer_in_no
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("pda_transfer_in_receive_all"))
+            print("调拨入库-整箱上架结果：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
 
     def pda_transfer_in_receive_one(self):
         pass
@@ -182,31 +191,46 @@ class PdaController(RequestOperator):
 if __name__ == '__main__':
     ums = UmsController()
     pda = PdaController(ums)
-    pick_order_no = "DJH2204120036"
+    pda.wms.switch_warehouse("UKBH01")
+    pick_order_no = "DJH2204140002"
     info = pda.pda_picking_detail(pick_order_no)
 
-    # picking_detail_info = info.get("data")
+    picking_detail_info = info.get("data")
     location_code_list = ["KW-RQ-TP-01"]
     # location_code = "KW-RQ-TP-01"
+    # 按需装托
+    pda.pda_submit_tray_info(location_code_list, picking_detail_info)
+    # 创建调拨出库单
+    pda.pda_finish_picking(pick_order_no, location_code_list)
 
-    # pda.pda_submit_tray_info(location_code_list, picking_detail_info)
-    # location_code = location_code_list[0]
-
-    # pda.pda_finish_picking(pick_order_no, location_code)
-
-    box_no_list = pda.test_box_info_list('DC2204120031')
-    print("箱单列表信息：", box_no_list)
-
+    # 获取调拨出库-箱单相关信息
+    kw = {
+        "transferOutNos": ['DC2204140002'],
+    }
+    res = pda.wms.search_box_out_list(**kw)
+    out_box_no_list = res.get("data")["records"]
     # 调拨复核
-    for i in box_no_list:
+    for i in out_box_no_list:
         pda.pda_review_submit(i.get("boxNo"), i.get("storageLocationCode"))
     # 调拨发货交接
-    for i in box_no_list:
+    for i in out_box_no_list:
         res = pda.pda_handover_bind(i.get("boxNo"))
-
-    # handover_no = res.get("data")["handoverNo"]
-    handover_no = "DBJJ2204130030"
+    # 调拨发货
+    handover_no = res.get("data")["handoverNo"]
+    # handover_no = "DBJJ2204120030"
     pda.pda_delivery_confirm(handover_no)
+
+
+    # 调拨收货--整箱
+    pda.pda_transfer_in_confirm(handover_no)
+    kw_box_in = {
+        "handoverNo": handover_no,
+    }
+    res = pda.wms.search_box_in_list(**kw_box_in)
+    box_no_info = res.get("data")["records"]
+    storage_location_code_list = ["KW-SJQ-01"]
+    for i in box_no_info:
+        pda.pda_transfer_in_receive_all(i.get("boxNo"), storage_location_code_list[0], i.get("transferInNo"))
 
 
     # box_no = "DC2204120030-1"

@@ -79,9 +79,8 @@ wms_api_config = {
         "method": "post",
         "data": {
             "current": 1,
-            "size": 9999,
-            "states": [
-            ],
+            "size": 1,
+            "states": [],
             "receiveWarehouseCode": "",
             "demandCodeList": None,
             "goodsSkuCodeList": None,
@@ -264,4 +263,30 @@ wms_api_config = {
         },
     },
 
+    # PDA-调拨入库-确认收货
+    "pda_transfer_in_confirm": {
+        "uri_path": "/api/ec-wms-api/transferIn/handover/received/confirm",
+        "method": "post",
+        "data": {
+            "handoverNo": ""
+        }
+    },
+
+    # PDA-调拨入库-整箱上架
+    "pda_transfer_in_receive_all": {
+        "uri_path": "/api/ec-wms-api/transferIn/input/box/shelf",
+        "method": "post",
+        "data": {
+            "boxNo": "",
+            "storageLocationCode": "",
+            "transferInNo": ""
+        }
+    },
+
+    # PDA-调拨入库-逐渐上架
+    "pda_transfer_in_receive_one": {
+        "uri_path": "/api/ec-wms-api/transferIn/input/sku/shelf",
+        "method": "post",
+        "data": ""
+    },
 }

@@ -54,6 +54,7 @@ class WmsController(RequestOperator):
         wms_api_config.get("switch_warehouse")["data"].update({"dataPermId": warehouse_info.get("id")})
         try:
             res = self.send_request(**wms_api_config.get("switch_warehouse"))
+            print("切换到{0}仓库成功".format(warehouse_code))
             return res
         except Exception as e:
             raise Exception('err_info:', e)
@@ -195,6 +196,7 @@ class WmsController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("demand_list"))
+            print("调拨需求查询：", res)
             return res
         except Exception as e:
             raise Exception("err_info:", e)
@@ -213,7 +215,7 @@ class WmsController(RequestOperator):
                     "id": i.get("id"),
                     "demandCode": i.get("demandCode")
                 })
-            print(demands_info)
+            print("获取调拨需求相关信息:", demands_info)
             return demands_info
         else:
             print("传入需求为空！请检查查询接口：demand_list()返回值")
@@ -357,7 +359,7 @@ if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    wms.switch_warehouse("UKBH02")
+    wms.switch_warehouse("UKBH01")
     # wms.entryorder("53586714577", ["G","F"], 2)
 
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
@@ -365,10 +367,12 @@ if __name__ == '__main__':
     # wms.del_wares()
     kw = {
         "states": [0],
-        "startCreateTime": "1649760048000",
-        "endCreateTime": int(time.time()*1000),
+        "startCreateTime": wms.time_tamp - 5000,
+        "endCreateTime": wms.time_tamp,
+        "createUserId": 10
     }
-    # demands = wms.demand_list(**kw)
+    print(kw)
+    demands = wms.demand_list(**kw)
     # demands_list = demands.get("data")["records"]
     # demands_info = wms.demand_info(demands_list)
     # res = wms.picking_create(demands_info)
@@ -385,4 +389,4 @@ if __name__ == '__main__':
     kw_box_in = {
         "handoverNo": "DBJJ2204120030",
     }
-    wms.search_box_in_list(**kw_box_in)
+    # wms.search_box_in_list(**kw_box_in)

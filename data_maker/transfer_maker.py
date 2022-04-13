@@ -10,7 +10,7 @@ import time
 class TransferMaker:
     def __init__(self):
         self.prefix = env_config.get("app_prefix")
-        self.time_tamp = int(time.time()) * 1000
+        self.time_tamp = int(time.time() * 1000)
         self.wms = WmsController(ums)
         self.st = StockOpearationController(ums)
         self.oms = OmsController(ums)
@@ -55,10 +55,10 @@ class TransferMaker:
         pass
 
     def transfer_maker(self, delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
-                      receive_target_warehouse_code, num, skucode, sku_type, location_code_list):
-        # 切换到相关仓库
+                      receive_target_warehouse_code, num, skucode, sku_type, delivery_kw_tp_code_list, receive_kw_sj_code_list):
+        # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
-        # 查获取调拨需求sku相关信息
+        # 获取调拨需求sku相关信息
         sku_list = self.oms.list_sku(sku_type, skucode)
         sku_info = sku_list.get("data")["records"]
 
@@ -69,8 +69,9 @@ class TransferMaker:
         #查询调拨需求请求参数
         kw = {
             "states": [0],
-            "startCreateTime": int(time.time() * 1000) - 3000000,
-            "endCreateTime": int(time.time() * 1000),
+            # "startCreateTime": self.time_tamp - 5000,  #查询5秒内的sku
+            # "endCreateTime": self.time_tamp,
+            "createUserId": 10
         }
         # 查询最近3秒生成的调拨需求列表
         demands = self.wms.demand_list(**kw)
@@ -92,12 +93,12 @@ class TransferMaker:
         # PDA-按需装托时，扫码拣货单号，获取拣货单信息
         info = self.pda.pda_picking_detail(pick_order_no)
         picking_detail_info = info.get("data")
-        # 按需装托
-        self.pda.pda_submit_tray_info(location_code_list, picking_detail_info)
 
-        location_code = location_code_list[0]
-        # 装托完成，创建出库单以及生成箱单
-        res = self.pda.pda_finish_picking(pick_order_no, location_code)
+        # 按需装托
+        self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
+
+        # 创建出库单以及生成箱单
+        res = self.pda.pda_finish_picking(pick_order_no, delivery_kw_tp_code_list)
         # 创建出库单结果： {'code': 200, 'message': '操作成功', 'data': 'DC2204120031'}
         transfer_out_no = res.get("data")
 
@@ -106,15 +107,7 @@ class TransferMaker:
             "transferOutNos": [transfer_out_no],
         }
         res = self.wms.search_box_out_list(**kw)
-        box_no_info = res.get("data")["records"]
-        # 获取箱单和库位对应的相关信息
-        box_no_list = []
-        for i in box_no_info:
-            about_box = {
-                "boxNo": i.get("boxNo"),
-                "storageLocationCode": i.get("storageLocationCode")
-            }
-            box_no_list.append(about_box)
+        box_no_list = res.get("data")["records"]
 
         # 调拨复核
         for i in box_no_list:
@@ -122,10 +115,23 @@ class TransferMaker:
         # 调拨发货交接
         for i in box_no_list:
             res = self.pda.pda_handover_bind(i.get("boxNo"))
-
-        hand_over_no = res.get("data")[""]
+        handover_no = res.get("data")["handoverNo"]
         # 调拨发货
-        self.pda.pda_delivery_confirm(hand_over_no)
+        self.pda.pda_delivery_confirm(handover_no)
+
+
+        # 切换到收货仓库货仓库
+        self.wms.switch_warehouse(receive_warehouse_code)
+        #调拨入库--确认收货
+        self.pda.pda_transfer_in_confirm(handover_no)
+        kw_box_in = {
+            "handoverNo": handover_no,
+        }
+        # 调拨入库-整箱上架
+        res = self.pda.wms.search_box_in_list(**kw_box_in)
+        box_no_info = res.get("data")["records"]
+        for i in box_no_info:
+            self.pda.pda_transfer_in_receive_all(i.get("boxNo"), receive_kw_sj_code_list[0], i.get("transferInNo"))
 
 
 
@@ -148,4 +154,4 @@ if __name__ == '__main__':
                               1, 0, 1)
     """
     # 新增调拨需求
-    transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1, "53586714577", 1, ["KW-RQ-TP-01"])
+    transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1, "53586714577", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])

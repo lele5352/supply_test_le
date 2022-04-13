@@ -620,7 +620,7 @@ class Transfer:
         print(res.json().get("data"))
         return res.json().get("data").get("records")[0]
 
-    # PDA-调拨入库-确认拣货
+    # PDA-调拨入库-确认收货
     def transfer_in_confirm(self, handover_no):
         url_transfer_in_confirm = "https://test160.popicorns.com/api/ec-wms-api/transferIn/handover/received/confirm"
         data_transfer_in_confirm = {

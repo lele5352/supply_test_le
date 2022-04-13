@@ -123,7 +123,7 @@ class OmsController(RequestOperator):
         })
         try:
             res = self.send_request(**oms_api_config.get("demand_create"))
-            print(res)
+            print("新增调拨需求：", res)
         except Exception as e:
             raise (Exception("err_info:", e))
 
