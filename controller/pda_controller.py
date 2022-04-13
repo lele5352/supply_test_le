@@ -2,12 +2,14 @@ from config.api_config.wms_api import wms_api_config
 from config.sys_config import env_config
 from tools.request_operator import RequestOperator
 from controller.ums_controller import UmsController
+from controller.wms_controller import WmsController
 
 class PdaController(RequestOperator):
 
     def __init__(self, ums):
         self.prefix = env_config.get("app_prefix")
         self.headers = ums.header
+        self.wms = WmsController(ums)
         super().__init__(self.prefix, self.headers)
 
     def pda_picking_detail(self, pick_order_no):
@@ -87,8 +89,6 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def pda_search_box_out_list(self):
-        pass
 
     def pda_review_submit(self, box_no, location_code):
         """
@@ -108,7 +108,13 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
+    def pda_split_order(self):
+        pass
+
     def pda_change_order(self):
+        pass
+
+    def pda_delete_order(self):
         pass
 
     def pda_handover_bind(self, box_no):
@@ -142,6 +148,35 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
+    def test_box_info_list(self, transfer_out_no):
+        # 查询调拨出库单下的箱单列表
+        kw = {
+            "transferOutNos": [transfer_out_no],
+        }
+
+        res = self.wms.search_box_out_list(**kw)
+        box_no_info = res.get("data")["records"]
+        # 获取箱单和库位对应的相关信息
+        box_no_list = []
+        for i in box_no_info:
+            about_box = {
+                "boxNo": i.get("boxNo"),
+                "storageLocationCode": i.get("storageLocationCode")
+            }
+            box_no_list.append(about_box)
+        return box_no_list
+
+
+    def pda_transfer_in_confirm(self):
+        pass
+
+
+    def pda_transfer_in_receive_all(self):
+        pass
+
+    def pda_transfer_in_receive_one(self):
+        pass
+
 
 
 if __name__ == '__main__':
@@ -150,17 +185,35 @@ if __name__ == '__main__':
     pick_order_no = "DJH2204120036"
     info = pda.pda_picking_detail(pick_order_no)
 
-    picking_detail_info = info.get("data")
+    # picking_detail_info = info.get("data")
     location_code_list = ["KW-RQ-TP-01"]
     # location_code = "KW-RQ-TP-01"
-    pda.pda_submit_tray_info(location_code_list, picking_detail_info)
-    location_code = location_code_list[0]
-    pda.pda_finish_picking(pick_order_no, location_code_list)
+
+    # pda.pda_submit_tray_info(location_code_list, picking_detail_info)
+    # location_code = location_code_list[0]
+
+    # pda.pda_finish_picking(pick_order_no, location_code)
+
+    box_no_list = pda.test_box_info_list('DC2204120031')
+    print("箱单列表信息：", box_no_list)
+
+    # 调拨复核
+    for i in box_no_list:
+        pda.pda_review_submit(i.get("boxNo"), i.get("storageLocationCode"))
+    # 调拨发货交接
+    for i in box_no_list:
+        res = pda.pda_handover_bind(i.get("boxNo"))
+
+    # handover_no = res.get("data")["handoverNo"]
+    handover_no = "DBJJ2204130030"
+    pda.pda_delivery_confirm(handover_no)
+
+
     # box_no = "DC2204120030-1"
     # pda.pda_review_submit(box_no, location_code)
     # pda.pda_handover_bind(box_no)
-    # hand_over_no = "DBJJ2204120030"
-    # pda.pda_delivery_confirm(hand_over_no)
+    # handover_no = "DBJJ2204120030"
+    # pda.pda_delivery_confirm(handover_no)
 
 
 

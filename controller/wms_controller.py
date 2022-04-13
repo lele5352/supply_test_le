@@ -216,7 +216,7 @@ class WmsController(RequestOperator):
             print(demands_info)
             return demands_info
         else:
-            print("传入需求为空！")
+            print("传入需求为空！请检查查询接口：demand_list()返回值")
 
 
     def picking_create(self, demandes_info, pick_type=1):
@@ -235,7 +235,7 @@ class WmsController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("picking_create"))
-            print(res)
+            print("创建拣货单：", res)
             return res
         except Exception as e:
             raise Exception("err_info:", e)
@@ -251,7 +251,7 @@ class WmsController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("assign_pick_user"))
-            print(res)
+            print("分配拣货人：", res)
             return res
         except Exception as e:
             raise Exception("err_info:", e)
@@ -269,7 +269,7 @@ class WmsController(RequestOperator):
         try:
             res = self.send_request(**wms_api_config.get("picking_detail"))
             picking_info = res.get("data")["details"]
-            print(picking_info)
+            print("查询拣货单详情：", picking_info)
             return picking_info
         except Exception as e:
             raise Exception("err_info:", e)
@@ -292,10 +292,62 @@ class WmsController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("do_picking"))
-            print(res)
+            print("确认拣货：", res)
             return res
         except Exception as e:
             raise Exception("err_info:", e)
+
+    def search_box_out_list(self, **kwargs):
+        wms_api_config.get("search_box_out_list")["data"].update({
+            "boxNos": kwargs.get("boxNos"),
+            "storageLocationCodes": kwargs.get("storageLocationCodes"),
+            "transferOutNos": kwargs.get("transferOutNos"),
+            "state": kwargs.get("state"),
+            "receiveWarehouseCode": kwargs.get("receiveWarehouseCode"),
+            "createUsername": kwargs.get("createUsername"),
+            "startCreateTime": kwargs.get("startCreateTime"),
+            "endCreateTime": kwargs.get("endCreateTime"),
+            "startUpdateTime": kwargs.get("startUpdateTime"),
+            "endUpdateTime": kwargs.get("endUpdateTime"),
+            "saleSkuCodes": kwargs.get("saleSkuCodes"),
+            "waresSkuCodes": kwargs.get("waresSkuCodes")
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("search_box_out_list"))
+            print("查询调拨出库-箱单：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+
+    def search_box_in_list(self, **kwargs):
+        """
+        查询调拨入库-箱单相关信息
+        :param kwargs: category：
+        :return:
+        """
+        wms_api_config.get("search_box_in_list")["data"].update({
+            "handoverNo": kwargs.get("handoverNo"),
+            "transferInNo": kwargs.get("transferInNo"),
+            "inState": kwargs.get("inState"),
+            "deliveryWarehouseCode": kwargs.get("deliveryWarehouseCode"),
+            "boxNos": kwargs.get("boxNos"),
+            "waresSkuCodes": kwargs.get("waresSkuCodes"),
+            "startEta": kwargs.get("startEta"),
+            "endEta": kwargs.get("endEta"),
+            "startCreateTime": kwargs.get("startCreateTime"),
+            "endCreateTime": kwargs.get("endCreateTime"),
+            "category": kwargs.get("category"),
+
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("search_box_in_list"))
+            print("查询调拨入库-箱单：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+
 
 
 
@@ -305,7 +357,7 @@ if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    wms.switch_warehouse("UKBH01")
+    wms.switch_warehouse("UKBH02")
     # wms.entryorder("53586714577", ["G","F"], 2)
 
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
@@ -323,5 +375,14 @@ if __name__ == '__main__':
     # picking_order_no = res.get("data")
 
     # wms.assign_pick_user("DJH2204120035")
-    picking_info = wms.picking_detail("DJH2204120035")
-    wms.do_picking("DJH2204120035", picking_info)
+    # picking_info = wms.picking_detail("DJH2204120035")
+    # wms.do_picking("DJH2204120035", picking_info)
+    kw_box_out = {
+        "transferOutNos": ['DC2204120031'],
+    }
+    # wms.search_box_out_list(**kw_box_out)
+
+    kw_box_in = {
+        "handoverNo": "DBJJ2204120030",
+    }
+    wms.search_box_in_list(**kw_box_in)

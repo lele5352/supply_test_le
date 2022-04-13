@@ -97,18 +97,36 @@ class TransferMaker:
 
         location_code = location_code_list[0]
         # 装托完成，创建出库单以及生成箱单
-        self.pda.pda_finish_picking(pick_order_no, location_code)
+        res = self.pda.pda_finish_picking(pick_order_no, location_code)
         # 创建出库单结果： {'code': 200, 'message': '操作成功', 'data': 'DC2204120031'}
-        """
+        transfer_out_no = res.get("data")
+
+        # 查询调拨出库单下的箱单列表
+        kw = {
+            "transferOutNos": [transfer_out_no],
+        }
+        res = self.wms.search_box_out_list(**kw)
+        box_no_info = res.get("data")["records"]
+        # 获取箱单和库位对应的相关信息
+        box_no_list = []
+        for i in box_no_info:
+            about_box = {
+                "boxNo": i.get("boxNo"),
+                "storageLocationCode": i.get("storageLocationCode")
+            }
+            box_no_list.append(about_box)
+
         # 调拨复核
-        box_no = "DC2204120030-1"
-        self.pda.pda_review_submit(box_no, location_code_list[0])
+        for i in box_no_list:
+            self.pda.pda_review_submit(i.get("boxNo"), i.get("storageLocationCode"))
         # 调拨发货交接
-        self.pda.pda_handover_bind(box_no)
-        hand_over_no = "DBJJ2204120030"
+        for i in box_no_list:
+            res = self.pda.pda_handover_bind(i.get("boxNo"))
+
+        hand_over_no = res.get("data")[""]
         # 调拨发货
         self.pda.pda_delivery_confirm(hand_over_no)
-        """
+
 
 
 

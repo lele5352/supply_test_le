@@ -175,13 +175,13 @@ wms_api_config = {
         }
     },
 
-    # PDA-查询出库箱单
-    "pda_search_box_out_list": {
+    # 查询调拨出库-箱单
+    "search_box_out_list": {
         "uri_path": "/api/ec-wms-api/transferOut/box/list",
         "method": "post",
         "data": {
             "current": 1,
-            "size": 1,
+            "size": 99,
             "boxNos": [],
             "storageLocationCodes": [],
             "transferOutNos": [],
@@ -241,6 +241,27 @@ wms_api_config = {
         "data": {
             "handoverNo": "",
         }
+    },
+
+    # 查询调拨入库-箱单
+    "search_box_in_list": {
+        "uri_path": "/api/ec-wms-api/transferIn/input/box/page",
+        "method": "post",
+        "data": {
+            "current": 1,
+            "size": 99,
+            "handoverNo": "",
+            "transferInNo": "",
+            "inState": "",
+            "deliveryWarehouseCode": "",
+            "boxNos": [],
+            "waresSkuCodes": [],
+            "startEta": "",
+            "endEta": "",
+            "startCreateTime": "",
+            "endCreateTime": "",
+            "category": None
+        },
     },
 
 }
