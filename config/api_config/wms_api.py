@@ -289,4 +289,31 @@ wms_api_config = {
         "method": "post",
         "data": ""
     },
+
+    # 仓间调拨-查询sku信息
+    "cj_sku_info_page": {
+        "uri_path": "/api/ec-wms-api/otherStockOutOrder/skuInfoPage",
+        "method": "post",
+        "data": {
+            "saleSkuCodes": [],
+            "skuName": "",
+            "size": 10,
+            "current": 1,
+            "warehouseLocationCode": "",
+            "productState": 1,
+            "skuCode": []
+        }
+    },
+
+    # 仓间调拨-新增仓间调拨单
+    "cj_create_inner": {
+        "uri_path": "/api/ec-wms-api/mutualTransferOut/create/inner",
+        "method": "post",
+        "data": {
+            "t": 1649929488448,
+            "receiveWarehouseCode": "",
+            "remark": "测试测试",
+            "skuItems": []
+        }
+    },
 }
