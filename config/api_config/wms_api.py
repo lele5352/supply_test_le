@@ -79,14 +79,14 @@ wms_api_config = {
         "method": "post",
         "data": {
             "current": 1,
-            "size": 1,# !!!!!!!!当前服务器时间比北京时间晚几分钟，导致无法精确查询到调拨需求，所以暂时写死返回1个调拨需求单
+            "size": 99,
             "states": [],
             "receiveWarehouseCode": "",
             "demandCodeList": None,
             "goodsSkuCodeList": None,
             "startCreateTime": "",
             "endCreateTime": "",
-            "sourceCodeList": None,
+            "sourceCodeList": [],
             "customerType": "",
             "createUserId": 10,
             "demandType": "",

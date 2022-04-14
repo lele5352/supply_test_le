@@ -63,22 +63,24 @@ class TransferMaker:
         sku_info = sku_list.get("data")["records"]
 
         # 新增调拨需求
-        # self.oms.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
-        #               receive_target_warehouse_code, sku_info, num)
-
+        remark = self.oms.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
+                      receive_target_warehouse_code, sku_info, num)
+        # 获取新增的调拨需求-oms上游单号
+        res = self.oms.demand_page(remark)
+        oms_demand_list = res.get("data")["records"]
+        source_code_list = []
+        for i in oms_demand_list:
+            source_code_list.append(i.get(("linkNo")))
         #查询调拨需求请求参数
         kw = {
-            "states": [0],
-            # "startCreateTime": self.time_tamp - 5000,  #查询5秒内的sku
-            # "endCreateTime": self.time_tamp,
-            "createUserId": 10
+            "sourceCodeList": source_code_list,
         }
         # 查询最近3秒生成的调拨需求列表
-        demands = self.wms.demand_list(**kw)
-        # 获取调拨需求列表
-        demands_list = demands.get("data")["records"]
-        # 获取调拨需求相关的信息
-        demands_info = self.wms.demand_info(demands_list)
+        res = self.wms.demand_list(**kw)
+        # 获取调拨需求相关信息
+        demands_info = res.get("data")["records"]
+
+
         # 新增调拨拣货单
         res = self.wms.picking_create(demands_info)
         # 获取调拨拣货单号
@@ -141,8 +143,6 @@ class TransferMaker:
 
 if __name__ == '__main__':
     transfer = TransferMaker()
-    #其他入库
-    # transfer.add_other_stock("UKBH01", "53586714577", ["G", "F"], 3, "KW-SJQ-01")     #其他入库添加库存
     """
     # 调整单
     transfer.add_adjust_stock("UKBH01",
@@ -153,5 +153,11 @@ if __name__ == '__main__':
                                 "adjustReason": "2"}],
                               1, 0, 1)
     """
-    # 新增调拨需求
-    transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1, "53586714577", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    # 其他入库
+    # transfer.add_other_stock("UKBH01", "53586714577", ["G", "F"], 3, "KW-SJQ-01")     #其他入库添加库存
+    # 新增调拨需求--160环境
+    # transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1, "53586714577", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+
+    # 新增调拨需求--uat环境
+    # transfer.add_other_stock("NJ01", "71230293819", ["C"], 2, "KW-SJQ-01")     #其他入库添加库存
+    transfer.transfer_maker("NJ01", "", "NJ02", "", 1, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])

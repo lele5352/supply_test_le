@@ -180,6 +180,11 @@ class WmsController(RequestOperator):
 
     #调拨需求查询，获取调拨需求相关数据
     def demand_list(self, **kwargs):
+        """
+        调拨需求查询，获取调拨
+        :param kwargs:
+        :return:
+        """
         wms_api_config.get("demand_list")["data"].update({
             "states": kwargs.get("states"),
             "receiveWarehouseCode": kwargs.get("receiveWarehouseCode"),
@@ -202,24 +207,23 @@ class WmsController(RequestOperator):
             raise Exception("err_info:", e)
 
 
-    def demand_info(self, demands):
-        """
-        获取调拨需求相关信息
-        @param demands:
-        @return:
-        """
-        if demands:
-            demands_info = []
-            for i in demands:
-                demands_info.append({
-                    "id": i.get("id"),
-                    "demandCode": i.get("demandCode")
-                })
-            print("获取调拨需求相关信息:", demands_info)
-            return demands_info
-        else:
-            print("传入需求为空！请检查查询接口：demand_list()返回值")
-
+    # def demand_info(self, demands):
+    #     """
+    #     获取调拨需求相关信息
+    #     @param demands:
+    #     @return:
+    #     """
+    #     if demands:
+    #         demands_info = []
+    #         for i in demands:
+    #             demands_info.append({
+    #                 "id": i.get("id"),
+    #                 "demandCode": i.get("demandCode")
+    #             })
+    #         print("获取调拨需求相关信息:", demands_info)
+    #         return demands_info
+    #     else:
+    #         print("传入需求为空！请检查查询接口：demand_list()返回值")
 
     def picking_create(self, demandes_info, pick_type=1):
         """
@@ -300,6 +304,11 @@ class WmsController(RequestOperator):
             raise Exception("err_info:", e)
 
     def search_box_out_list(self, **kwargs):
+        """
+        查询调拨出库-箱单信息
+        :param kwargs:
+        :return:
+        """
         wms_api_config.get("search_box_out_list")["data"].update({
             "boxNos": kwargs.get("boxNos"),
             "storageLocationCodes": kwargs.get("storageLocationCodes"),
@@ -359,21 +368,18 @@ if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    wms.switch_warehouse("UKBH01")
+    wms.switch_warehouse("NJ01")
     # wms.entryorder("53586714577", ["G","F"], 2)
 
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
     # wms.del_wares()
+
     kw = {
-        "states": [0],
-        "startCreateTime": wms.time_tamp - 5000,
-        "endCreateTime": wms.time_tamp,
-        "createUserId": 10
+        "sourceCodeList": ["DB00000026"]
     }
-    print(kw)
-    demands = wms.demand_list(**kw)
-    # demands_list = demands.get("data")["records"]
+    res = wms.demand_list(**kw)
+    demands_info = res.get("data")["records"]
     # demands_info = wms.demand_info(demands_list)
     # res = wms.picking_create(demands_info)
     # picking_order_no = res.get("data")

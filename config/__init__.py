@@ -22,5 +22,17 @@ env_configs = {
         'mysql_info_auth': {'mysql_info': mysql_config.get('test_160'), 'db': 'supply_auth'},
         'mysql_info_wms': {'mysql_info': mysql_config.get('test_160'), 'db': 'supply_wms'},
         'mysql_info_ims': {'mysql_info': mysql_config.get('test_160'), 'db': 'supply_ims_new'},
+    },
+    #uat环境
+    'test_uat': {
+        'app_prefix': url_prefix.get("evn_uat_app"),
+        'web_prefix': url_prefix.get("evn_uat_web"),
+        'transfer_service_prefix': url_prefix.get(""),
+        'ims_service_prefix': url_prefix.get(""),
+
+        'mysql_info_auth': {'mysql_info': mysql_config.get('test_uat'), 'db': 'supply_auth'},
+        'mysql_info_wms': {'mysql_info': mysql_config.get('test_uat'), 'db': 'supply_wms'},
+        'mysql_info_ims': {'mysql_info': mysql_config.get('test_uat'), 'db': 'supply_ims'},
     }
+
 }

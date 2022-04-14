@@ -16,6 +16,12 @@ mysql_config = {
             "passwd": "sd)*(YSHDG;l)D_FKds:D#&y}",
             "host": "10.0.0.127",
             "port": 3306
-    }
+    },
+    'test_uat': {
+        'user': 'erp',
+        'passwd': 'sd)*(YSHDG;l)D_FKds:D#&y}',
+        'host': '10.0.15.21',
+        'port': 3301
+    },
 }
 

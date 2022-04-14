@@ -1,4 +1,5 @@
 oms_api_config = {
+    # 获取仓库列表
     "get_warehouses_list": {
         "uri_path": "/api/ec-oms-api/base/getWarehouseList",
         "method": "get",
@@ -6,6 +7,8 @@ oms_api_config = {
             "t": "",
         }
     },
+
+    # 新增调拨需求时，查询sku相关信息
     "list_product": {
         "uri_path": "/api/ec-oms-api/salesorder/listProduct?current=1&size=99",
         "method": "get",
@@ -15,6 +18,7 @@ oms_api_config = {
             "t": "",
         }
     },
+    # 新增调拨需求
     "demand_create": {
         "uri_path": "/api/ec-oms-api/demand/create",
         "method": "post",
@@ -31,8 +35,40 @@ oms_api_config = {
             "receiveTargetWarehouseName": " ",
             "receiveTargetWarehouseCode": " ",
             "receiveTargetWarehouseId": " ",
-            "remark": "自动化创建需求自动化创建需求自动化创建需求",
+            "remark": "",
             "details": []
+        }
+    },
+
+    # 查询新增的调拨需求
+    "demand_page": {
+        "uri_path": "/api/ec-oms-api/demand/page",
+        "method": "post",
+        "data": {
+            "current": 1,
+            "size": 99,
+            "demandStatus": [],
+            "deliveryWarehouseCodes": [],
+            "receiveWarehouseCodes": [],
+            "demandType": [],
+            "transferStatus": [],
+            "purchaseStatus": [],
+            "linkNos": "",
+            "itemSkuCodes": "",
+            "remark": "",
+            "createTimeStart": "",
+            "createTimeEnd": "",
+            "cancelTimeStart": "",
+            "cancelTimeEnd": ""
+        }
+    },
+
+    # 取消调拨需求
+    "cancel_demand": {
+        "uri_path": "/api/ec-oms-api/demand/cancel",
+        "method": "post",
+        "data": {
+            "id": ""
         }
     },
 

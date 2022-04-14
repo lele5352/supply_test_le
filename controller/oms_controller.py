@@ -1,3 +1,4 @@
+import time
 from config.api_config.oms_api import oms_api_config
 from config.sys_config import env_config
 from tools.request_operator import RequestOperator
@@ -12,12 +13,10 @@ class OmsController(RequestOperator):
 
     # 获取仓库列表
     def get_warehouses_list(self):
-        # timestamp = int(time.time()) * 1000
         oms_api_config.get("get_warehouses_list")["data"].update({
             "t": self.time_tamp
         })
         res = self.send_request(**oms_api_config.get("get_warehouses_list"))
-        # print(res)
         return res.get("data")
 
     # 获取仓库相关信息包含：id、code、name
@@ -105,6 +104,7 @@ class OmsController(RequestOperator):
                 "itemPicture": item["mainUrl"]
             }
             details.append(sku_detail)
+        remark = "DBXQ{0}".format(int(time.time()))
 
         oms_api_config.get("demand_create")["data"].update({
             "deliveryWarehouseId": delivery_warehouse_info.get("warehouseId"),
@@ -119,13 +119,42 @@ class OmsController(RequestOperator):
             "receiveTargetWarehouseName": receive_target_warehouse_name,
             "receiveTargetWarehouseCode": receive_target_warehouse_code,
             "receiveTargetWarehouseId": receive_target_warehouse_id,
-            "details": details
+            "details": details,
+            "remark": remark
         })
         try:
             res = self.send_request(**oms_api_config.get("demand_create"))
             print("新增调拨需求：", res)
+            return remark
         except Exception as e:
             raise (Exception("err_info:", e))
+
+
+    def demand_page(self, remark):
+        oms_api_config.get("demand_page")["data"].update({
+            "remark": remark
+        })
+        try:
+            res = self.send_request(**oms_api_config.get("demand_page"))
+            print("查询调拨需求信息：", res)
+            return res
+        except Exception as e:
+            raise (Exception("err_info:", e))
+
+
+    def cancel_demand(self, id):
+        oms_api_config.get("cancel_demand")["data"].update(
+            {
+                "id": id
+            }
+        )
+        try:
+            res = self.send_request(**oms_api_config.get("cancel_demand"))
+            print("取消调拨需求：", res)
+        except Exception as e:
+            raise (Exception("err_info:", e))
+
+
 
 
 
@@ -135,4 +164,8 @@ if __name__ == '__main__':
     oms = OmsController(ums)
     # oms.list_sku(1, "53586714577")
     sku_info = [{"skuCode": "53586714577", "productNameCn": "决明子", "type": 1, "typeName": "销售sku", "relateSku": None, "categoryName": "家具>家具套装>餐桌桌椅套装", "mainUrl": "https://img.popicorns.com/dev/file/2021/11/08/8cbba5e1160a48e9bd9b43e54450ab7c.jpg"}]
-    oms.demand_create("UKBH01", "", "UKBH02", "", sku_info, 2)
+    # remark = oms.demand_create("UKBH01", "", "UKBH02", "", sku_info, 1)
+    # res = oms.demand_page(remark)
+    # oms_demand_list = res.get("data")["records"]
+
+    oms.cancel_demand(751)
