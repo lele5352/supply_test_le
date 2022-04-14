@@ -160,4 +160,6 @@ if __name__ == '__main__':
 
     # 新增调拨需求--uat环境
     # transfer.add_other_stock("NJ01", "71230293819", ["C"], 2, "KW-SJQ-01")     #其他入库添加库存
-    transfer.transfer_maker("NJ01", "", "NJ02", "", 1, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    transfer.transfer_maker("NJ01", "", "NJ02", "", 1, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])\
+
+        sdf
