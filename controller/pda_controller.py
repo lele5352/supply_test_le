@@ -64,7 +64,47 @@ class PdaController(RequestOperator):
             except Exception as e:
                 raise Exception("err_info:", e)
         else:
-            print("传入的拣货单信息为空，请检查'pda_picking_detail()'函数返回参数")
+            print("按需装托：传入的拣货单信息为空，请检查'pda_picking_detail()'函数返回参数")
+
+    def pda_submit_tray_info_many(self, location_code_list, picking_detail_info):
+        """
+        按需装托
+        :param location_code_list: 装托需要的托盘（当前仅支持一个托盘装托）
+        :param picking_detail_info: 拣货单信息，可通过pda_picking_detail()方法获取
+        :return:
+        """
+        if picking_detail_info:
+            pick_order_no = picking_detail_info.get("pickOrderNo")
+            tray_infos = []     # 装托的sku信息
+            data = []       # 接口内参数信息
+            # 通过获取拣货单内已拣货sku信息列表数据，拼接按需装托相关参数
+            for i in picking_detail_info.get("details"):
+
+                sku_info = {
+                    "id": i["id"],
+                    "waresSkuCode": i["waresSkuCode"],
+                    "waresSkuName": i["waresSkuName"],
+                    "goodsSkuCode": i["goodsSkuCode"],
+                    "goodsSkuName": i["goodsSkuName"],
+                    "skuQty": i["realPickQty"]
+                }
+                tray_infos.append(sku_info)
+
+            item = {
+                "storageLocationCode": location_code_list[0],
+                "pickOrderNo": pick_order_no,
+                "trayInfos": tray_infos
+            }
+            data.append(item)
+            wms_api_config.get("pda_submit_tray_info")["data"] = data
+            try:
+                res = self.send_request(**wms_api_config.get("pda_submit_tray_info"))
+                print("按需装托：", res)
+                return res
+            except Exception as e:
+                raise Exception("err_info:", e)
+        else:
+            print("按需装托：传入的拣货单信息为空，请检查'pda_picking_detail()'函数返回参数")
 
     def pda_move_storage(self):
         """

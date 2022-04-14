@@ -178,6 +178,8 @@ class WmsController(RequestOperator):
 
         print("数据清理完成")
 
+    """按需调拨"""
+
     #调拨需求查询，获取调拨需求相关数据
     def demand_list(self, **kwargs):
         """
@@ -359,8 +361,34 @@ class WmsController(RequestOperator):
             raise Exception("err_info:", e)
 
 
+    """仓间调拨相关"""
+    def cj_sku_info_page(self, sku_code_list):
+        wms_api_config.get("cj_sku_info_page")["data"].update({
+            "skuCode": sku_code_list
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("cj_sku_info_page"))
+            print("仓间：sku信息查询：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
 
+    def cj_create_inner(self, receive_warehouse_code, **sku_code_list):
+        """
 
+        :param receive_warehouse_code: 收货仓库code
+        :param sku_code_list: 仓库sku列表
+        :return:
+        """
+        res = self.cj_sku_info_page(sku_code)
+
+        remark = "自动化_CJ{0}".format(int(time.time()))
+        wms_api_config.get("cj_create_inner")["data"].update({
+            "t": self.time_tamp,
+            "receiveWarehouseCode": receive_warehouse_code,
+            "remark": remark,
+            "skuItems":
+        })
 
 
 
@@ -370,7 +398,6 @@ if __name__ == '__main__':
     # wms.get_warehouses_list()
     wms.switch_warehouse("NJ01")
     # wms.entryorder("53586714577", ["G","F"], 2)
-
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
     # wms.del_wares()
