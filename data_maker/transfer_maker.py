@@ -17,7 +17,6 @@ class TransferMaker:
         self.pda = PdaController(ums)
         # super().__init__(self.prefix, self.headers)
 
-
     def add_other_stock(self, warehouse_code, salesku, bom_ver, skunum, shelves_location_code):
         # 切换到相关仓库
         self.wms.switch_warehouse(warehouse_code)
@@ -55,9 +54,11 @@ class TransferMaker:
         pass
 
     def transfer_maker(self, delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
-                      receive_target_warehouse_code, num, skucode, sku_type, delivery_kw_tp_code_list, receive_kw_sj_code_list):
+                       receive_target_warehouse_code, num, skucode, sku_type, delivery_kw_tp_code_list,
+                       receive_kw_sj_code_list):
         # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
+
         # 获取调拨需求sku相关信息
         sku_list = self.oms.list_sku(sku_type, skucode)
         sku_info = sku_list.get("data")["records"]
@@ -121,10 +122,9 @@ class TransferMaker:
         # 调拨发货
         self.pda.pda_delivery_confirm(handover_no)
 
-
         # 切换到收货仓库货仓库
         self.wms.switch_warehouse(receive_warehouse_code)
-        #调拨入库--确认收货
+        # 调拨入库--确认收货
         self.pda.pda_transfer_in_confirm(handover_no)
         kw_box_in = {
             "handoverNo": handover_no,
@@ -134,11 +134,6 @@ class TransferMaker:
         box_no_info = res.get("data")["records"]
         for i in box_no_info:
             self.pda.pda_transfer_in_receive_all(i.get("boxNo"), receive_kw_sj_code_list[0], i.get("transferInNo"))
-
-
-
-
-
 
 
 if __name__ == '__main__':
@@ -159,7 +154,5 @@ if __name__ == '__main__':
     # transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1, "53586714577", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
 
     # 新增调拨需求--uat环境
-    # transfer.add_other_stock("NJ01", "71230293819", ["C"], 2, "KW-SJQ-01")     #其他入库添加库存
-    transfer.transfer_maker("NJ01", "", "NJ02", "", 1, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])\
-
-        sdf
+    transfer.add_other_stock("NJ01", "71230293819", ["C"], 3, "KW-SJQ-01")     #其他入库添加库存
+    # transfer.transfer_maker("NJ01", "", "NJ02", "", 1, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
