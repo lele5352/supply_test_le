@@ -301,7 +301,7 @@ wms_api_config = {
             "current": 1,
             "warehouseLocationCode": "",
             "productState": 1,
-            "skuCode": []
+            "skuCodes": []
         }
     },
 
@@ -314,6 +314,46 @@ wms_api_config = {
             "receiveWarehouseCode": "",
             "remark": "测试测试",
             "skuItems": []
+        }
+    },
+
+    # 仓间调拨-调拨出库单分页查询
+    "cj_platform_transferout_page": {
+        "uri_path": "/api/ec-wms-api/platformTransferOut/page/2",
+        "method": "post",
+        "data": {
+            "platformTransferOutCodeList": [],
+            "skuCodeList": [],
+            "saleSkuCodeList": [],
+            "inState": [],
+            "receiveWarehouseId": None,
+            "boxOrderNos": [],
+            "pickOrderNos": [],
+            "wmsStates": [],
+            "deliveryUserId": "",
+            "createUserId": None,
+            "size": 10,
+            "current": 1
+        }
+    },
+
+    # 仓间调拨-调拨出库单详情页（确认拣货时也用此接口）
+    "cj_detail_page": {
+        "uri_path": "/api/ec-wms-api/mutualTransferOut/detailPage/{0}",
+        "method": "get",
+        "data": {
+            "t": 1649929488448
+        }
+    },
+
+    # 仓间调拨-确认拣货
+    "cj_confirmPick": {
+        "uri_path": "/api/ec-wms-api/mutualTransferOut/confirmPick",
+        "method": "post",
+        "data": {
+            "pickOrderId": None,
+            "pickOrderNo": "",
+            "pickItems": []
         }
     },
 }

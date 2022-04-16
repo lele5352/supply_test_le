@@ -12,7 +12,7 @@ class WmsController(RequestOperator):
         self.headers = ums.header
         super().__init__(self.prefix, self.headers)
 
-        self.db = MySqlOperator(**env_config.get("mysql_info_ims"))
+        # self.db = MySqlOperator(**env_config.get("mysql_info_ims"))
 
 
     def get_warehouses_list(self):
@@ -363,8 +363,13 @@ class WmsController(RequestOperator):
 
     """仓间调拨相关"""
     def cj_sku_info_page(self, sku_code_list):
+        """
+        仓间调拨：查询调拨的sku信息
+        @param sku_code_list:
+        @return:
+        """
         wms_api_config.get("cj_sku_info_page")["data"].update({
-            "skuCode": sku_code_list
+            "skuCodes": sku_code_list
         })
         try:
             res = self.send_request(**wms_api_config.get("cj_sku_info_page"))
@@ -373,23 +378,91 @@ class WmsController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def cj_create_inner(self, receive_warehouse_code, **sku_code_list):
+    def cj_create_inner(self, receive_warehouse_code, sku_info_list):
         """
-
+        仓间调拨：新增
         :param receive_warehouse_code: 收货仓库code
         :param sku_code_list: 仓库sku列表
         :return:
         """
-        # res = self.cj_sku_info_page(sku_code)
-
+        # 获取即将新增仓间调拨的sku_code列表
+        sku_code_list = []
+        for i in sku_info_list:
+            sku_code_list.append(i.get("sku_code"))
+        # 传入sku_code列表查询相关sku信息
+        res = self.cj_sku_info_page(sku_code_list)
+        cj_sku_info = res.get("data")["records"]["skuList"]
+        # 组装仓间调拨时要用到的sku信息及数量
+        sku_items = []
+        for j in cj_sku_info:
+            for z in sku_info_list:
+                if z.get("sku_code") == j.get("skuCode"):
+                    item = {
+                        "locationCode": j.get("warehouseLocationCode"),
+                        "skuCode": j.get("skuCode"),
+                        "skuQty": z.get("num")
+                    }
+                    sku_items.append(item)
         remark = "自动化_CJ{0}".format(int(time.time()))
+        # 更新请求参数内相关字段值
         wms_api_config.get("cj_create_inner")["data"].update({
             "t": self.time_tamp,
             "receiveWarehouseCode": receive_warehouse_code,
             "remark": remark,
-            # "skuItems":
-            "test": ""
+            "skuItems": item
         })
+        try:
+            res = self.send_request(**wms_api_config.get("cj_create_inner"))
+            print("仓间：新增仓间调拨：", res)
+            return res
+        #     返回参数示例：{"code":200,"message":"操作成功","data":{"instructOrderId":230,"instructOrderNo":"CJDC2204160001","pickOrderNo":"CJJH2204160001"}}
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def cj_platform_transferout_page(self, **kwargs):
+        """
+        仓间调拨：调拨出库-列表也查询
+        @param kwargs:
+        @return:
+        """
+        wms_api_config.get("cj_platform_transferout_page")["data"].update(**kwargs)
+        try:
+            res = self.send_request(**wms_api_config.get("cj_platform_transferout_page"))
+            print("仓间：查询仓间调拨出库页面：", res)
+            return res
+            # 返回参数示例：{"code":200,"message":"操作成功","data":{"records":[{"transferOutId":230,"transferOutCode":"CJDC2204160001"...}}
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def cj_detail_page(self, pick_order_id):
+        uri = wms_api_config.get("cj_detail_page")["uri_path"].format(pick_order_id)
+        wms_api_config.get("cj_detail_page").update({
+            "uri_path": uri
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("cj_detail_page"))
+            print("仓间：查看出库单详情页：", res)
+            return res
+            # 返回参数示例：{"code":200,"message":"操作成功","data":{"records":[{"transferOutId":230,"transferOutCode":"CJDC2204160001"...}}
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def cj_confirmPick(self, pick_order_id, pick_order_no, pick_items):
+        wms_api_config.get("cj_confirmPick")["data"].update({
+            "pickOrderId": pick_order_id,
+            "pickOrderNo": pick_order_no,
+            "pickItems": pick_items
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("cj_confirmPick"))
+            print("仓间：查看出库单详情页：", res)
+            return res
+            # 返回参数示例：{"code":200,"message":"操作成功","data":"CJDC2204160001-1"}
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+
+
 
 
 
@@ -406,8 +479,9 @@ if __name__ == '__main__':
     kw = {
         "sourceCodeList": ["DB00000026"]
     }
-    res = wms.demand_list(**kw)
-    demands_info = res.get("data")["records"]
+    # 调拨需求列表查询
+    # res = wms.demand_list(**kw)
+    # demands_info = res.get("data")["records"]
     # demands_info = wms.demand_info(demands_list)
     # res = wms.picking_create(demands_info)
     # picking_order_no = res.get("data")
@@ -424,3 +498,17 @@ if __name__ == '__main__':
         "handoverNo": "DBJJ2204120030",
     }
     # wms.search_box_in_list(**kw_box_in)
+
+    # 仓间调拨-新增
+    sku_info_list = [
+        {"sku_code": "71230293819C01", "num": 1},
+        {"sku_code": "71230293819C02", "num": 1}
+    ]
+    # wms.cj_create_inner("NJ02", sku_info_list)
+    # 仓间调拨-列表查询
+    search_cj = {
+        "pickOrderNo": ["CJJH2204160001"]
+    }
+    # wms.cj_platform_transferout_page(**search_cj)
+    # 仓间调拨-出库单详情页
+    wms.cj_detail_page(133)

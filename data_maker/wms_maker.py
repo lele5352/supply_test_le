@@ -7,7 +7,7 @@ from data_maker import *
 import time
 
 
-class TransferMaker:
+class WmsMaker:
     def __init__(self):
         self.prefix = env_config.get("app_prefix")
         self.time_tamp = int(time.time() * 1000)
@@ -137,7 +137,7 @@ class TransferMaker:
 
 
 if __name__ == '__main__':
-    transfer = TransferMaker()
+    transfer = WmsMaker()
     """
     # 调整单
     transfer.add_adjust_stock("UKBH01",
