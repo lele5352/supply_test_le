@@ -388,6 +388,7 @@ class WmsController(RequestOperator):
             "receiveWarehouseCode": receive_warehouse_code,
             "remark": remark,
             # "skuItems":
+            "test": ""
         })
 
 
