@@ -306,6 +306,7 @@ wms_api_config = {
     },
 
     # 仓间调拨-新增仓间调拨单
+    # 返回值：{'code': 200, 'message': '操作成功', 'data': {'instructOrderId': 480, 'instructOrderNo': 'CJDC2204180001', 'pickOrderNo': 'CJJH2204180001'}}
     "cj_create_inner": {
         "uri_path": "/api/ec-wms-api/mutualTransferOut/create/inner",
         "method": "post",
@@ -325,7 +326,7 @@ wms_api_config = {
             "platformTransferOutCodeList": [],
             "skuCodeList": [],
             "saleSkuCodeList": [],
-            "inState": [],
+            "inState": None, #接收列表类型数据 [0,1,2,3]
             "receiveWarehouseId": None,
             "boxOrderNos": [],
             "pickOrderNos": [],
@@ -354,6 +355,15 @@ wms_api_config = {
             "pickOrderId": None,
             "pickOrderNo": "",
             "pickItems": []
+        }
+    },
+
+    # 仓间调拨-确认拣货
+    "cj_deliver_inner": {
+        "uri_path": "/api/ec-wms-api/mutualTransferOut/deliver/inner",
+        "method": "post",
+        "data": {
+            "instructOrderId": 1,
         }
     },
 }

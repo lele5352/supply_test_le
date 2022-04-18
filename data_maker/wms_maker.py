@@ -65,14 +65,14 @@ class WmsMaker:
 
         # 新增调拨需求
         remark = self.oms.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
-                      receive_target_warehouse_code, sku_info, num)
+                                        receive_target_warehouse_code, sku_info, num)
         # 获取新增的调拨需求-oms上游单号
         res = self.oms.demand_page(remark)
         oms_demand_list = res.get("data")["records"]
         source_code_list = []
         for i in oms_demand_list:
             source_code_list.append(i.get(("linkNo")))
-        #查询调拨需求请求参数
+        # 查询调拨需求请求参数
         kw = {
             "sourceCodeList": source_code_list,
         }
@@ -80,7 +80,6 @@ class WmsMaker:
         res = self.wms.demand_list(**kw)
         # 获取调拨需求相关信息
         demands_info = res.get("data")["records"]
-
 
         # 新增调拨拣货单
         res = self.wms.picking_create(demands_info)
@@ -135,6 +134,67 @@ class WmsMaker:
         for i in box_no_info:
             self.pda.pda_transfer_in_receive_all(i.get("boxNo"), receive_kw_sj_code_list[0], i.get("transferInNo"))
 
+    def cj_transfer_maker(self, delivery_warehouse_code, receive_warehouse_code, sku_info_list,receive_kw_sj_code_list):
+        # 切换到发货仓库
+        self.wms.switch_warehouse(delivery_warehouse_code)
+
+        # 获取即将新增仓间调拨的sku_code列表
+        sku_code_list = []
+        for i in sku_info_list:
+            sku_code_list.append(i.get("sku_code"))
+        # 传入sku_code列表查询相关sku信息
+        res = self.wms.cj_sku_info_page(sku_code_list)
+        cj_sku_info = res.get("data")["records"][0]["skuList"]
+        # 组装仓间调拨时要用到的sku信息及数量
+        sku_items = []
+        for j in cj_sku_info:
+            for z in sku_info_list:
+                if z.get("sku_code") == j.get("skuCode"):
+                    item = {
+                        "locationCode": j.get("warehouseLocationCode"),
+                        "skuCode": j.get("skuCode"),
+                        "skuQty": z.get("num")
+                    }
+                    sku_items.append(item)
+        remark = "自动化_CJ{0}".format(int(time.time()))
+        # 新增仓间调拨
+        res = self.wms.cj_create_inner(receive_warehouse_code, sku_items, remark)
+
+        # 新增的仓间调拨单相关信息存储下来
+        pick_order_no = res.get("data")["pickOrderNo"]
+        instruct_order_id = res.get("data")["instructOrderId"]
+        search_cj = {
+            "pickOrderNo": [pick_order_no]
+        }
+        # 仓间调拨-查询仓间调拨出库页面
+        res = self.wms.cj_platform_transferout_page(**search_cj)
+        pick_order_id = res.get("data")["records"][0]["pickOrderId"]
+
+        # 仓间调拨-查看出库单详情页,获取pick_details详情,并修改实拣数量为待拣数量
+        res = self.wms.cj_detail_page(pick_order_id)
+        pick_details = res.get("data")["pickDetails"]
+        for i in pick_details:
+            i["pickQty"] = i.get("skuQty")
+        # 仓间调拨-确认拣货
+        self.wms.cj_confirmPick(pick_order_id, pick_order_no, pick_details)
+        # 仓间调拨-发货
+        res = self.wms.cj_deliver_inner(instruct_order_id)
+        handover_no = res.get("data")["handoverOrderNo"]
+
+
+        # 切换到收货仓库货仓库
+        self.wms.switch_warehouse(receive_warehouse_code)
+        # 调拨入库--确认收货
+        self.pda.pda_transfer_in_confirm(handover_no)
+        kw_box_in = {
+            "handoverNo": handover_no,
+        }
+        # 调拨入库-整箱上架
+        res = self.pda.wms.search_box_in_list(**kw_box_in)
+        box_no_info = res.get("data")["records"]
+        for i in box_no_info:
+            self.pda.pda_transfer_in_receive_all(i.get("boxNo"), receive_kw_sj_code_list[0], i.get("transferInNo"))
+
 
 if __name__ == '__main__':
     transfer = WmsMaker()
@@ -150,9 +210,15 @@ if __name__ == '__main__':
     """
     # 其他入库
     # transfer.add_other_stock("UKBH01", "53586714577", ["G", "F"], 3, "KW-SJQ-01")     #其他入库添加库存
+    # transfer.add_other_stock("NJ01", "71230293819", ["C"], 3, "KW-SJQ-01")  # 其他入库添加库存
+
     # 新增调拨需求--160环境
     # transfer.transfer_maker("UKBH01", "", "UKBH02", "", 1, "53586714577", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
-
     # 新增调拨需求--uat环境
-    transfer.add_other_stock("NJ01", "71230293819", ["C"], 3, "KW-SJQ-01")     #其他入库添加库存
     # transfer.transfer_maker("NJ01", "", "NJ02", "", 1, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+
+    # 新增仓间调拨
+    sku_info_list = [
+        {"sku_code": "53586714577G02", "num": 1},
+    ]
+    transfer.cj_transfer_maker("UKBH01", "UKBH02", sku_info_list, ["KW-SJQ-01"])

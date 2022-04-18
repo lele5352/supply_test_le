@@ -378,44 +378,25 @@ class WmsController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def cj_create_inner(self, receive_warehouse_code, sku_info_list):
+    def cj_create_inner(self, receive_warehouse_code, sku_items, remark):
         """
         仓间调拨：新增
         :param receive_warehouse_code: 收货仓库code
         :param sku_code_list: 仓库sku列表
         :return:
         """
-        # 获取即将新增仓间调拨的sku_code列表
-        sku_code_list = []
-        for i in sku_info_list:
-            sku_code_list.append(i.get("sku_code"))
-        # 传入sku_code列表查询相关sku信息
-        res = self.cj_sku_info_page(sku_code_list)
-        cj_sku_info = res.get("data")["records"]["skuList"]
-        # 组装仓间调拨时要用到的sku信息及数量
-        sku_items = []
-        for j in cj_sku_info:
-            for z in sku_info_list:
-                if z.get("sku_code") == j.get("skuCode"):
-                    item = {
-                        "locationCode": j.get("warehouseLocationCode"),
-                        "skuCode": j.get("skuCode"),
-                        "skuQty": z.get("num")
-                    }
-                    sku_items.append(item)
-        remark = "自动化_CJ{0}".format(int(time.time()))
         # 更新请求参数内相关字段值
         wms_api_config.get("cj_create_inner")["data"].update({
             "t": self.time_tamp,
             "receiveWarehouseCode": receive_warehouse_code,
             "remark": remark,
-            "skuItems": item
+            "skuItems": sku_items
         })
         try:
             res = self.send_request(**wms_api_config.get("cj_create_inner"))
             print("仓间：新增仓间调拨：", res)
             return res
-        #     返回参数示例：{"code":200,"message":"操作成功","data":{"instructOrderId":230,"instructOrderNo":"CJDC2204160001","pickOrderNo":"CJJH2204160001"}}
+        # 返回参数示例：{"code":200,"message":"操作成功","data":{"instructOrderId":230,"instructOrderNo":"CJDC2204160001","pickOrderNo":"CJJH2204160001"}}
         except Exception as e:
             raise Exception("err_info:", e)
 
@@ -455,9 +436,21 @@ class WmsController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("cj_confirmPick"))
-            print("仓间：查看出库单详情页：", res)
+            print("仓间：确认拣货：", res)
             return res
             # 返回参数示例：{"code":200,"message":"操作成功","data":"CJDC2204160001-1"}
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def cj_deliver_inner(self, instruct_order_id):
+        wms_api_config.get("cj_deliver_inner")["data"].update({
+            "instructOrderId": instruct_order_id
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("cj_deliver_inner"))
+            print("仓间：调拨出库-发货 ：", res)
+            return res
+        # 返回参数示例：{'code': 200, 'message': '操作成功','data': {'handoverOrderNo': 'CJJJ2204180005', 'entryOrderNo': 'CJDR2204180002'}}
         except Exception as e:
             raise Exception("err_info:", e)
 
@@ -470,7 +463,7 @@ if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    wms.switch_warehouse("NJ01")
+    wms.switch_warehouse("UKBH01")
     # wms.entryorder("53586714577", ["G","F"], 2)
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
@@ -501,14 +494,17 @@ if __name__ == '__main__':
 
     # 仓间调拨-新增
     sku_info_list = [
-        {"sku_code": "71230293819C01", "num": 1},
-        {"sku_code": "71230293819C02", "num": 1}
+        {"sku_code": "53586714577G01", "num": 1},
     ]
-    # wms.cj_create_inner("NJ02", sku_info_list)
+    # wms.cj_create_inner("UKBH01", sku_info_list)
+
     # 仓间调拨-列表查询
     search_cj = {
-        "pickOrderNo": ["CJJH2204160001"]
+        "pickOrderNos": ["CJJH2204180002"],
     }
-    # wms.cj_platform_transferout_page(**search_cj)
+    wms.cj_platform_transferout_page(**search_cj)
     # 仓间调拨-出库单详情页
-    wms.cj_detail_page(133)
+    # wms.cj_detail_page(153)
+    # 仓间调拨确认拣货
+    # wms.cj_confirmPick()
+
