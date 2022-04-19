@@ -79,7 +79,7 @@ wms_api_config = {
         "method": "post",
         "data": {
             "current": 1,
-            "size": 99,
+            "size": 1,
             "states": [],
             "receiveWarehouseCode": "",
             "demandCodeList": None,
