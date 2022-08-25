@@ -126,7 +126,6 @@ class PdaController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("pda_finish_picking"))
-            print(wms_api_config.get("pda_finish_picking"))
             print("创建出库单结果：", res)  # 创建出库单结果： {'code': 200, 'message': '操作成功', 'data': 'DC2204120031'}
             return res
         except Exception as e:

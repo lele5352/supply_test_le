@@ -1,7 +1,7 @@
 oms_api_config = {
     # 获取仓库列表
     "get_warehouses_list": {
-        "uri_path": "/api/ec-oms-api/base/getWarehouseList",
+        "uri_path": "/api/ec-oms-api/base/actual/getWarehouseList",
         "method": "get",
         "data": {
             "t": "",
@@ -45,21 +45,22 @@ oms_api_config = {
         "uri_path": "/api/ec-oms-api/demand/page",
         "method": "post",
         "data": {
-            "current": 1,
-            "size": 99,
-            "demandStatus": [],
-            "deliveryWarehouseCodes": [],
-            "receiveWarehouseCodes": [],
-            "demandType": [],
-            "transferStatus": [],
-            "purchaseStatus": [],
-            "linkNos": "",
-            "itemSkuCodes": "",
-            "remark": "",
-            "createTimeStart": "",
-            "createTimeEnd": "",
-            "cancelTimeStart": "",
-            "cancelTimeEnd": ""
+          "current": 1,
+          "size": 10,
+          "demandStatus": [],
+          "deliveryWarehouseCodes": [],
+          "receiveWarehouseCodes": [],
+          "demandType": [],
+          "transferStatus": [],
+          "purchaseStatus": [],
+          "externDemandNos": [],
+          "linkNos": [],
+          "itemSkuCodes": [],
+          "remark": "",
+          "createTimeStart": "",
+          "createTimeEnd": "",
+          "cancelTimeStart": "",
+          "cancelTimeEnd": ""
         }
     },
 

@@ -1,8 +1,9 @@
 from config import env_configs
 
 #测试环境配置
-env = 'test_160' #160环境
-# env = 'test_uat' #160环境
+# env = 'test_160' #160环境
+env = 'test_189' #189环境
+# env = 'test_uat' #uat环境
 #env = 'test_26' #26环境
 
 env_config = env_configs.get(env)

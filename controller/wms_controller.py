@@ -14,6 +14,14 @@ class WmsController(RequestOperator):
 
         # self.db = MySqlOperator(**env_config.get("mysql_info_ims"))
 
+    def get_wareskucode_info(self, sku_code):
+        """
+        获取仓库sku信息详情
+        @return:
+        """
+        wms_api_config.get("get_by_wareSkuCode")["data"].update({"warehouseSkuCode": sku_code})
+        res = self.send_request(**wms_api_config.get("get_by_wareSkuCode"))
+        return res.get("data")
 
     def get_warehouses_list(self):
         """
@@ -24,7 +32,6 @@ class WmsController(RequestOperator):
             "t": self.time_tamp
         })
         res = self.send_request(**wms_api_config.get("get_warehouses_list"))
-        # print(res)
         return res.get("data")
 
     def get_warehouse_info(self, warehouse_code):
@@ -33,16 +40,20 @@ class WmsController(RequestOperator):
         :param warehouse_code: 仓库code
         :return: 仓库信息，包含：{"id": xxx, "warehouse_id":xxx, "warehouse_name":xxx, "warehouse_code":xxx}
         """
+
         warehouses_list = self.get_warehouses_list()
-        for i in warehouses_list:
-            if warehouse_code == i["ext"]["warehouseCode"]:
-                warehouse_info = {
-                    "warehouseId": i["ext"]["warehouseId"],
-                    "warehouseName": i["ext"]["warehouseName"],
-                    "warehouseCode": i["ext"]["warehouseCode"],
-                    "id": i["id"]
-                }
-        return warehouse_info
+        if warehouses_list:
+            for i in warehouses_list:
+                if warehouse_code == i["ext"]["warehouseCode"]:
+                    warehouse_info = {
+                        "warehouseId": i["ext"]["warehouseId"],
+                        "warehouseName": i["ext"]["warehouseName"],
+                        "warehouseCode": i["ext"]["warehouseCode"],
+                        "id": i["id"]
+                    }
+            return warehouse_info
+        else:
+            return
 
     def switch_warehouse(self, warehouse_code):
         """
@@ -51,7 +62,13 @@ class WmsController(RequestOperator):
         :return:
         """
         warehouse_info = self.get_warehouse_info(warehouse_code)
-        wms_api_config.get("switch_warehouse")["data"].update({"dataPermId": warehouse_info.get("id")})
+        if warehouse_info:
+            wms_api_config.get("switch_warehouse")["data"].update({"dataPermId": warehouse_info.get("id")})
+        else:
+            return "仓库列表为空"
+
+
+
         try:
             res = self.send_request(**wms_api_config.get("switch_warehouse"))
             print("切换到{0}仓库成功".format(warehouse_code))
@@ -87,7 +104,9 @@ class WmsController(RequestOperator):
         for i in sku_list:
             del i["sort"]
             del i["volume"]
-            bom_num = int(i.get("skuName")[-1])
+            #获取sku详情，然后拿到bom比例来决定入库数量
+            res = self.get_wareskucode_info(i.get("skuCode"))
+            bom_num = res.get("bomDetailList")[0].get("skuNum")
             i.update({"planSkuQty": (bom_num * num)})
             i["warehouseSkuCode"] = i.pop("skuCode")
             i["warehouseSkuName"] = i.pop("skuName")
@@ -463,8 +482,8 @@ if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    wms.switch_warehouse("UKBH01")
-    # wms.entryorder("53586714577", ["G","F"], 2)
+    # wms.switch_warehouse("UKBH01")
+    wms.entryorder("94991138113", ["A"], 2)
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
     # wms.del_wares()

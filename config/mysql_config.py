@@ -23,5 +23,11 @@ mysql_config = {
         'host': '10.0.15.21',
         'port': 3301
     },
+    'test_189': {
+        'user': 'erp',
+        'passwd': 'sd)*(YSHDG;l)D_FKds:D#&y}',
+        'host': '10.0.0.190',
+        'port': 3306
+    }
 }
 

@@ -28,6 +28,11 @@ url_prefix = {
     'ims_service_160': 'http://10.0.0.160:28801',
     # 'ims_service_160': 'http://10.0.8.233:28801',
 
+    # -------------------189配置--------------------
+    # 平台域名
+    'evn_189_web': 'https://test189.popicorns.com',
+    'evn_189_app': 'https://test189.popicorns.com',
+
     # -------------------UAT配置--------------------
     # 平台域名
     'evn_uat_web': 'https://uat-scms.popicorns.com',

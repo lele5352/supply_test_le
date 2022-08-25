@@ -14,6 +14,15 @@ wms_api_config = {
         "method": "put",
         "data": {"dataPermId": 1}
     },
+    #获取sku相关信息
+    "get_by_wareSkuCode": {
+        "uri_path": "/api/ec-wms-api/sku-search/getByWareSkuCode",
+        "method": "get",
+        "data": {
+            "warehouseSkuCode": None
+        },
+    },
+
     # 其他入添加商品时，查询接口
     "other_add_skuinfo_page": {
         "uri_path": "/api/ec-wms-api/entryorder/addSkuInfoPage",
@@ -79,7 +88,7 @@ wms_api_config = {
         "method": "post",
         "data": {
             "current": 1,
-            "size": 1,
+            "size": 99,
             "states": [],
             "receiveWarehouseCode": "",
             "demandCodeList": None,
