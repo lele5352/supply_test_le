@@ -62,11 +62,7 @@ class WmsController(RequestOperator):
         :return:
         """
         warehouse_info = self.get_warehouse_info(warehouse_code)
-        if warehouse_info:
-            wms_api_config.get("switch_warehouse")["data"].update({"dataPermId": warehouse_info.get("id")})
-        else:
-            return "仓库列表为空"
-
+        wms_api_config.get("switch_warehouse")["data"].update({"dataPermId": warehouse_info.get("id")})
 
 
         try:
@@ -473,7 +469,8 @@ class WmsController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-
+    """库内服务相关"""
+    # def stockoperation_adjustReceipt
 
 
 
@@ -482,8 +479,8 @@ if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    # wms.switch_warehouse("UKBH01")
-    wms.entryorder("94991138113", ["A"], 2)
+    wms.switch_warehouse("LELE-BH")
+    # wms.entryorder("94991138113", ["A"], 2)
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
     # wms.del_wares()
@@ -521,7 +518,7 @@ if __name__ == '__main__':
     search_cj = {
         "pickOrderNos": ["CJJH2204180002"],
     }
-    wms.cj_platform_transferout_page(**search_cj)
+    # wms.cj_platform_transferout_page(**search_cj)
     # 仓间调拨-出库单详情页
     # wms.cj_detail_page(153)
     # 仓间调拨确认拣货

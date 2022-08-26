@@ -58,7 +58,7 @@ class WmsMaker:
                        receive_kw_sj_code_list):
         # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
-
+        """
         # 获取调拨需求sku相关信息---废除不不在使用
         # sku_list = self.oms.list_sku(sku_type, skucode)
         # sku_info = sku_list.get("data")["records"]
@@ -86,8 +86,8 @@ class WmsMaker:
         res = self.wms.picking_create(demands_info)
         # 获取调拨拣货单号
         pick_order_no = res.get("data")
-
-        # pick_order_no = 'DJH2208250006'
+        """
+        pick_order_no = 'DJH2208260010'
         # 分配拣货人
         self.wms.assign_pick_user(pick_order_no)
         
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     #160环境
     # transfer.transfer_maker("UKBH01", "", "ZY-FOR", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
     #189环境
-    transfer.transfer_maker("LELE-ZZ", "LELE-ZF", "LELE-ZF", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    transfer.transfer_maker("KWDR-TEST", "", "LELE-BH", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
     # 新增调拨需求--uat环境
     # transfer.transfer_maker("FSBH02", "", "CA01", "", 2, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
 
