@@ -58,11 +58,11 @@ class WmsMaker:
                        receive_kw_sj_code_list):
         # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
-        """
-        # 获取调拨需求sku相关信息---废除不不在使用
+
+        # 获取调拨需求sku相关信息---废除不在使用
         # sku_list = self.oms.list_sku(sku_type, skucode)
         # sku_info = sku_list.get("data")["records"]
-
+        # """
         # 新增调拨需求--返回备注字段信息
         remark = self.oms.demand_create(delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
                                         receive_target_warehouse_code, sku_list)
@@ -86,8 +86,9 @@ class WmsMaker:
         res = self.wms.picking_create(demands_info)
         # 获取调拨拣货单号
         pick_order_no = res.get("data")
-        """
-        pick_order_no = 'DJH2208260010'
+        # """
+        # pick_order_no = 'DJH2208290001'
+
         # 分配拣货人
         self.wms.assign_pick_user(pick_order_no)
         
@@ -102,7 +103,10 @@ class WmsMaker:
         picking_detail_info = info.get("data")
 
         # 按需装托
-        self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
+        #按需装托在单个库位上
+        # self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
+        #按需装托在多个库位上
+        self.pda.pda_submit_tray_info_many(delivery_kw_tp_code_list, picking_detail_info)
 
         # 创建出库单以及生成箱单
         res = self.pda.pda_finish_picking(pick_order_no, delivery_kw_tp_code_list)
@@ -231,16 +235,22 @@ if __name__ == '__main__':
     # 新增调拨需求--160环境    type-1：销售sku    type-2：部件sku
     sku_list = [
          {
-            "code": "94991138113",
+            "code": "70076739388",
             "type": 1,
-            "bom_version": "C",
+            "bom_version": "B",
+            "num": 3
+         },
+        {
+            "code": "71230293819",
+            "type": 1,
+            "bom_version": "A",
             "num": 3
          }
         ]
     #160环境
     # transfer.transfer_maker("UKBH01", "", "ZY-FOR", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
     #189环境
-    transfer.transfer_maker("KWDR-TEST", "", "LELE-BH", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    transfer.transfer_maker("KWDR-TEST", "", "LELE-BH", "", sku_list, ["KW-RQ-TP-01", "KW-RQ-TP-02", "KW-RQ-TP-03"], ["KW-SJQ-01"])
     # 新增调拨需求--uat环境
     # transfer.transfer_maker("FSBH02", "", "CA01", "", 2, "71230293819", 1, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
 

@@ -5,6 +5,9 @@ picking_detail_info = json.loads(picking_detail_info)
 picking_detail_info = picking_detail_info.get("data")
 pick_order_no = picking_detail_info.get("pickOrderNo")
 
+
+location_code_list = ["KW-RQ-TP-01","KW-RQ-TP-02"]
+
 tray_infos = []  # 装托的sku信息
 data = []  # 接口内参数信息
 # 通过获取拣货单内已拣货sku信息列表数据，拼接按需装托相关参数
@@ -20,4 +23,16 @@ for i in picking_detail_info.get("details"):
         }
         tray_infos.append(sku_info)
 random.shuffle(tray_infos)
-print(tray_infos)
+
+#待装托的参数列表，按照传入的装托库位个数打散成不同的子列表，便于后续装托请求参数拼接
+for i in range(0, len(location_code_list)):
+    tray_info = tray_infos[i::len(location_code_list)]
+
+    item = {
+        "storageLocationCode": location_code_list[i],
+        "pickOrderNo": pick_order_no,
+        "trayInfos": tray_info
+    }
+    data.append(item)
+print(data)
+

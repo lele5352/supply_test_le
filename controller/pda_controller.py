@@ -1,3 +1,4 @@
+import random
 from config.api_config.wms_api import wms_api_config
 from config.sys_config import env_config
 from tools.request_operator import RequestOperator
@@ -69,40 +70,48 @@ class PdaController(RequestOperator):
     def pda_submit_tray_info_many(self, location_code_list, picking_detail_info):
         """
         按需装托
-        :param location_code_list: 装托需要的托盘（当前仅支持一个托盘装托）
+        :param location_code_list: 装托需要的托盘（支持多个托盘）
         :param picking_detail_info: 拣货单信息，可通过pda_picking_detail()方法获取
         :return:
         """
         if picking_detail_info:
             pick_order_no = picking_detail_info.get("pickOrderNo")
             tray_infos = []     # 装托的sku信息
-            data = []       # 接口内参数信息
             # 通过获取拣货单内已拣货sku信息列表数据，拼接按需装托相关参数
             for i in picking_detail_info.get("details"):
-
-                sku_info = {
-                    "id": i["id"],
-                    "waresSkuCode": i["waresSkuCode"],
-                    "waresSkuName": i["waresSkuName"],
-                    "goodsSkuCode": i["goodsSkuCode"],
-                    "goodsSkuName": i["goodsSkuName"],
-                    "skuQty": i["realPickQty"]
+                #将参数按sku数量拆散
+                for j in range(i["realPickQty"]):
+                    sku_info = {
+                        "id": i["id"],
+                        "waresSkuCode": i["waresSkuCode"],
+                        "waresSkuName": i["waresSkuName"],
+                        "goodsSkuCode": i["goodsSkuCode"],
+                        "goodsSkuName": i["goodsSkuName"],
+                        "skuQty": 1
+                    }
+                    #装托的参数拆散后，追加到某个列表内
+                    tray_infos.append(sku_info)
+            #打乱待装托参数的列表，实现后续随机装托
+            random.shuffle(tray_infos)
+            # tray_infos_list = []
+            #待装托的参数列表，按照传入的装托库位个数打散成不同的子列表，便于后续装托请求参数拼接
+            for i in range(0, len(location_code_list)):
+                tray_info = tray_infos[i::len(location_code_list)]
+                # tray_infos_list.append(tray_info)
+                item = {
+                    "storageLocationCode": location_code_list[i],
+                    "pickOrderNo": pick_order_no,
+                    "trayInfos": tray_info
                 }
-                tray_infos.append(sku_info)
-
-            item = {
-                "storageLocationCode": location_code_list[0],
-                "pickOrderNo": pick_order_no,
-                "trayInfos": tray_infos
-            }
-            data.append(item)
-            wms_api_config.get("pda_submit_tray_info")["data"] = data
-            try:
-                res = self.send_request(**wms_api_config.get("pda_submit_tray_info"))
-                print("按需装托：", res)
-                return res
-            except Exception as e:
-                raise Exception("err_info:", e)
+                data = []  # 接口内参数信息
+                data.append(item)
+                print("按需装托时的请求参数data：", data)
+                wms_api_config.get("pda_submit_tray_info")["data"] = data
+                try:
+                    res = self.send_request(**wms_api_config.get("pda_submit_tray_info"))
+                    print("按需装托：「{0}」".format(location_code_list[i]), res)
+                except Exception as e:
+                    raise Exception("err_info:", e)
         else:
             print("按需装托：传入的拣货单信息为空，请检查'pda_picking_detail()'函数返回参数")
 
@@ -145,7 +154,7 @@ class PdaController(RequestOperator):
         })
         try:
             res = self.send_request(**wms_api_config.get("pda_review_submit"))
-            print("调拨复核结果：", res)
+            print("调拨复核结果：「{0}」".format(location_code), res)
             return res
         except Exception as e:
             raise Exception("err_info:", e)
