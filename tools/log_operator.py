@@ -3,7 +3,7 @@ import datetime
 import time
 import os
 logger = logging.getLogger('supply_log')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # log_path是存放日志的路径
 time_str = time.strftime('%Y%m%d', time.localtime(time.time()))
@@ -16,6 +16,7 @@ if not os.path.exists(lib_path):
 # 日志文件的地址
 all_log_name = lib_path + '/' + 'all' + '_' + time_str + '.log'
 error_log_name = lib_path + '/' + 'error' + '_' + time_str + '.log'
+
 # 全部log
 rf_handler = logging.FileHandler(all_log_name)
 rf_handler.setLevel(logging.DEBUG)
@@ -30,7 +31,8 @@ logger.addHandler(rf_handler)
 logger.addHandler(f_handler)
 
 if __name__ == "__main__":
-    logger.debug('test1')
-    logger.warning('test2')
-    logger.error('test3')
-    logger.critical('test4')
+    logger.debug('Level 1:DEBUG')
+    logger.info('Level 2:INFO')
+    logger.warning('Level 3:WARNING')
+    logger.error('Level 4:ERROR')
+    logger.critical('Level 5:critical')

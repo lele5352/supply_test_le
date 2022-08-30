@@ -2,6 +2,7 @@ from tools.request_operator import RequestOperator
 from controller.ums_controller import UmsController
 from config.sys_config import env_config
 from config.api_config.stock_operation_api import stock_opeartion_config
+from tools.log_operator import logger as log
 import time
 
 
@@ -25,11 +26,16 @@ class StockOpearationController(RequestOperator):
             "t": self.time_tamp
         })
         res = self.send_request(**stock_opeartion_config.get("get_wares_skuname_by_code"))
-        return res.get("data")
+        if res.get("code") == 200:
+            log.info("查询sku名称：get_wares_skuname_by_code。", res)
+            return res.get("data")
+        else:
+            log.error(res)
+            return
 
     def get_storage_location_info(self, skucode, storage_location_code):
         """
-
+        获取库位库存信息
         :param skucode: sku编码
         :param storage_location_code: 库位信息
         :return:sku的库位库存信息

@@ -1,4 +1,5 @@
 import time
+from tools.log_operator import logger as log
 
 from tools.request_operator import RequestOperator
 from tools.rsq_operator import encrypt_data

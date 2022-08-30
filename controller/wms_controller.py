@@ -3,6 +3,7 @@ from tools.mysql_operator import MySqlOperator
 from config.sys_config import env_config
 from controller.ums_controller import UmsController
 from config.api_config.wms_api import wms_api_config
+from tools.log_operator import logger as log
 import time
 
 class WmsController(RequestOperator):
@@ -21,7 +22,12 @@ class WmsController(RequestOperator):
         """
         wms_api_config.get("get_by_wareSkuCode")["data"].update({"warehouseSkuCode": sku_code})
         res = self.send_request(**wms_api_config.get("get_by_wareSkuCode"))
-        return res.get("data")
+        if res.get("code") == 200:
+            log.info(res)
+            return res.get("data")
+        else:
+            log.error(res)
+
 
     def get_warehouses_list(self):
         """
@@ -32,7 +38,12 @@ class WmsController(RequestOperator):
             "t": self.time_tamp
         })
         res = self.send_request(**wms_api_config.get("get_warehouses_list"))
-        return res.get("data")
+        if res.get("code") == 200:
+            log.info(res)
+            return res.get("data")
+        else:
+            log.error(res)
+            return
 
     def get_warehouse_info(self, warehouse_code):
         """
@@ -42,18 +53,16 @@ class WmsController(RequestOperator):
         """
 
         warehouses_list = self.get_warehouses_list()
-        if warehouses_list:
-            for i in warehouses_list:
-                if warehouse_code == i["ext"]["warehouseCode"]:
-                    warehouse_info = {
-                        "warehouseId": i["ext"]["warehouseId"],
-                        "warehouseName": i["ext"]["warehouseName"],
-                        "warehouseCode": i["ext"]["warehouseCode"],
-                        "id": i["id"]
-                    }
-            return warehouse_info
-        else:
-            return
+        for i in warehouses_list:
+            if warehouse_code == i["ext"]["warehouseCode"]:
+                warehouse_info = {
+                    "warehouseId": i["ext"]["warehouseId"],
+                    "warehouseName": i["ext"]["warehouseName"],
+                    "warehouseCode": i["ext"]["warehouseCode"],
+                    "id": i["id"]
+                }
+        return warehouse_info
+
 
     def switch_warehouse(self, warehouse_code):
         """
@@ -64,13 +73,14 @@ class WmsController(RequestOperator):
         warehouse_info = self.get_warehouse_info(warehouse_code)
         wms_api_config.get("switch_warehouse")["data"].update({"dataPermId": warehouse_info.get("id")})
 
-
-        try:
-            res = self.send_request(**wms_api_config.get("switch_warehouse"))
-            print("切换到{0}仓库成功".format(warehouse_code))
+        res = self.send_request(**wms_api_config.get("switch_warehouse"))
+        if res.get("code") == 200:
+            log.info(res)
+            print("切换到「{0}」仓库成功".format(warehouse_code))
             return res
-        except Exception as e:
-            raise Exception('err_info:', e)
+        else:
+            log.error(res)
+            return
 
     def other_add_skuinfo_page(self, skucode):
         """
@@ -114,8 +124,14 @@ class WmsController(RequestOperator):
         timestamp = int(time.time()) * 1000
         wms_api_config.get("entryorder")["data"].update({"skuInfoList": sku_list, "eta": timestamp, "timestamp": timestamp, "operationFlag": operation_flag})
         res = self.send_request(**wms_api_config.get("entryorder"))
-        entryorder_info = res.get("data")
-        return entryorder_info
+        if res.get("code") == 200:
+            log.info(res)
+            entryorder_info = res.get("data")
+            return entryorder_info
+        else:
+            log.error(res)
+            return
+
 
     def get_sku_info_by_entryCode(self, entryorder_info):
         """
@@ -125,8 +141,14 @@ class WmsController(RequestOperator):
         """
         wms_api_config.get("get_sku_info_by_entryCode")["data"].update(entryorder_info)
         res = self.send_request(**wms_api_config.get("get_sku_info_by_entryCode"))
-        entryorder_sku_list = res.get("data")["records"]
-        return entryorder_sku_list
+        if res.get("code") == 200:
+            log.info(res)
+            entryorder_sku_list = res.get("data")["records"]
+            return entryorder_sku_list
+        else:
+            log.error(res)
+            return
+
 
     def get_entry_order_by_id(self, entryo_order_id):
         """
@@ -139,7 +161,13 @@ class WmsController(RequestOperator):
         wms_api_config.get("get_entry_order_by_id")["data"].update({"t": timestamp})
         wms_api_config.get("get_entry_order_by_id")["uri_path"] = uri_path_prefix + entryo_order_id
         res = self.send_request(**wms_api_config.get("get_entry_order_by_id"))
-        return res.get("data")
+        if res.get("code") == 200:
+            log.info(res)
+            return res.get("data")
+        else:
+            log.error(res)
+            return
+
 
     def put_on_the_shelf(self, shelves_location_code, skuqty, entryo_order_id, entryorder_sku_list):
         """
@@ -161,7 +189,13 @@ class WmsController(RequestOperator):
             sku_list.append(x)
         wms_api_config.get("put_on_the_shelf")["data"].update({"entryOrderId": entryo_order_id, "skuList": sku_list})
         res = self.send_request(**wms_api_config.get("put_on_the_shelf"))
-        return res.get("message")
+        if res.get("code") == 200:
+            log.info(res)
+            return res.get("message")
+        else:
+            log.error(res)
+            return
+
 
     def del_wares(self):
         sql_ims_list = [
@@ -216,12 +250,14 @@ class WmsController(RequestOperator):
             "cancelFlag": kwargs.get("cancelFlag"),
             "saleOrderCodes": kwargs.get("saleOrderCodes")
         })
-        try:
-            res = self.send_request(**wms_api_config.get("demand_list"))
+        res = self.send_request(**wms_api_config.get("demand_list"))
+        if res.get("code") == 200:
+            log.info(res)
             print("调拨需求查询：", res)
             return res
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
 
 
     # def demand_info(self, demands):
@@ -256,12 +292,15 @@ class WmsController(RequestOperator):
             "demandCodes": demand_code_list,
             "pickType": pick_type
         })
-        try:
-            res = self.send_request(**wms_api_config.get("picking_create"))
+        res = self.send_request(**wms_api_config.get("picking_create"))
+        if res.get("code") == 200:
+            log.info(res)
             print("创建拣货单：", res)
             return res
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
 
     def assign_pick_user(self, pick_order_no):
         """
@@ -272,12 +311,15 @@ class WmsController(RequestOperator):
         wms_api_config.get("assign_pick_user")["data"].update({
             "pickOrderNos": [pick_order_no]
         })
-        try:
-            res = self.send_request(**wms_api_config.get("assign_pick_user"))
+        res = self.send_request(**wms_api_config.get("assign_pick_user"))
+        if res.get("code") == 200:
+            log.info(res)
             print("分配拣货人：", res)
             return res
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
 
     def picking_detail(self, pick_order_no):
         """
@@ -289,13 +331,16 @@ class WmsController(RequestOperator):
         wms_api_config.get("picking_detail")["data"].update({
             "t": self.time_tamp
         })
-        try:
-            res = self.send_request(**wms_api_config.get("picking_detail"))
-            picking_info = res.get("data")["details"]
+        res = self.send_request(**wms_api_config.get("picking_detail"))
+        picking_info = res.get("data")["details"]
+        if res.get("code") == 200:
+            log.info(res)
             print("查询拣货单详情：", picking_info)
             return picking_info
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
 
     def do_picking(self, pick_order_no, picking_info):
         """
@@ -313,12 +358,15 @@ class WmsController(RequestOperator):
             "pickOrderNo": pick_order_no,
             "details": picking_info
         })
-        try:
-            res = self.send_request(**wms_api_config.get("do_picking"))
+        res = self.send_request(**wms_api_config.get("do_picking"))
+        if res.get("code") == 200:
+            log.info(res)
             print("确认拣货：", res)
             return res
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
 
     def search_box_out_list(self, **kwargs):
         """
@@ -340,12 +388,14 @@ class WmsController(RequestOperator):
             "saleSkuCodes": kwargs.get("saleSkuCodes"),
             "waresSkuCodes": kwargs.get("waresSkuCodes")
         })
-        try:
-            res = self.send_request(**wms_api_config.get("search_box_out_list"))
+        res = self.send_request(**wms_api_config.get("search_box_out_list"))
+        if res.get("code") == 200:
+            log.info(res)
             print("查询调拨出库-箱单：", res)
             return res
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
 
 
     def search_box_in_list(self, **kwargs):
@@ -368,12 +418,14 @@ class WmsController(RequestOperator):
             "category": kwargs.get("category"),
 
         })
-        try:
-            res = self.send_request(**wms_api_config.get("search_box_in_list"))
+        res = self.send_request(**wms_api_config.get("search_box_in_list"))
+        if res.get("code") == 200:
+            log.info(res)
             print("查询调拨入库-箱单：", res)
             return res
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
 
 
     """仓间调拨相关"""
@@ -386,12 +438,15 @@ class WmsController(RequestOperator):
         wms_api_config.get("cj_sku_info_page")["data"].update({
             "skuCodes": sku_code_list
         })
-        try:
-            res = self.send_request(**wms_api_config.get("cj_sku_info_page"))
+        res = self.send_request(**wms_api_config.get("cj_sku_info_page"))
+        if res.get("code") == 200:
+            log.info(res)
             print("仓间：sku信息查询：", res)
             return res
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
 
     def cj_create_inner(self, receive_warehouse_code, sku_items, remark):
         """
@@ -407,13 +462,17 @@ class WmsController(RequestOperator):
             "remark": remark,
             "skuItems": sku_items
         })
-        try:
-            res = self.send_request(**wms_api_config.get("cj_create_inner"))
+        res = self.send_request(**wms_api_config.get("cj_create_inner"))
+        if res.get("code") == 200:
+            log.info(res)
             print("仓间：新增仓间调拨：", res)
             return res
         # 返回参数示例：{"code":200,"message":"操作成功","data":{"instructOrderId":230,"instructOrderNo":"CJDC2204160001","pickOrderNo":"CJJH2204160001"}}
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
+
 
     def cj_platform_transferout_page(self, **kwargs):
         """
@@ -422,26 +481,32 @@ class WmsController(RequestOperator):
         @return:
         """
         wms_api_config.get("cj_platform_transferout_page")["data"].update(**kwargs)
-        try:
-            res = self.send_request(**wms_api_config.get("cj_platform_transferout_page"))
+        res = self.send_request(**wms_api_config.get("cj_platform_transferout_page"))
+        if res.get("code") == 200:
+            log.info(res)
             print("仓间：查询仓间调拨出库页面：", res)
-            return res
             # 返回参数示例：{"code":200,"message":"操作成功","data":{"records":[{"transferOutId":230,"transferOutCode":"CJDC2204160001"...}}
-        except Exception as e:
-            raise Exception("err_info:", e)
+            return res
+        else:
+            log.error(res)
+            return
+
 
     def cj_detail_page(self, pick_order_id):
         uri = wms_api_config.get("cj_detail_page")["uri_path"].format(pick_order_id)
         wms_api_config.get("cj_detail_page").update({
             "uri_path": uri
         })
-        try:
-            res = self.send_request(**wms_api_config.get("cj_detail_page"))
+        res = self.send_request(**wms_api_config.get("cj_detail_page"))
+        if res.get("code") == 200:
+            log.info(res)
             print("仓间：查看出库单详情页：", res)
             return res
             # 返回参数示例：{"code":200,"message":"操作成功","data":{"records":[{"transferOutId":230,"transferOutCode":"CJDC2204160001"...}}
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
 
     def cj_confirmPick(self, pick_order_id, pick_order_no, pick_items):
         wms_api_config.get("cj_confirmPick")["data"].update({
@@ -449,25 +514,31 @@ class WmsController(RequestOperator):
             "pickOrderNo": pick_order_no,
             "pickItems": pick_items
         })
-        try:
-            res = self.send_request(**wms_api_config.get("cj_confirmPick"))
+        res = self.send_request(**wms_api_config.get("cj_confirmPick"))
+        if res.get("code") == 200:
+            log.info(res)
             print("仓间：确认拣货：", res)
-            return res
             # 返回参数示例：{"code":200,"message":"操作成功","data":"CJDC2204160001-1"}
-        except Exception as e:
-            raise Exception("err_info:", e)
+            return res
+        else:
+            log.error(res)
+            return
+
 
     def cj_deliver_inner(self, instruct_order_id):
         wms_api_config.get("cj_deliver_inner")["data"].update({
             "instructOrderId": instruct_order_id
         })
-        try:
-            res = self.send_request(**wms_api_config.get("cj_deliver_inner"))
+        res = self.send_request(**wms_api_config.get("cj_deliver_inner"))
+        if res.get("code") == 200:
+            log.info(res)
             print("仓间：调拨出库-发货 ：", res)
+            # 返回参数示例：{'code': 200, 'message': '操作成功','data': {'handoverOrderNo': 'CJJJ2204180005', 'entryOrderNo': 'CJDR2204180002'}}
             return res
-        # 返回参数示例：{'code': 200, 'message': '操作成功','data': {'handoverOrderNo': 'CJJJ2204180005', 'entryOrderNo': 'CJDR2204180002'}}
-        except Exception as e:
-            raise Exception("err_info:", e)
+        else:
+            log.error(res)
+            return
+
 
     """库内服务相关"""
     # def stockoperation_adjustReceipt
@@ -479,7 +550,8 @@ if __name__ == '__main__':
     ums = UmsController()
     wms = WmsController(ums)
     # wms.get_warehouses_list()
-    wms.switch_warehouse("LELE-BH")
+    wms.get_wareskucode_info("71230293819")
+    # wms.switch_warehouse("LELE-BH")
     # wms.entryorder("94991138113", ["A"], 2)
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
