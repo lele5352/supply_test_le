@@ -1,6 +1,8 @@
 from data_maker import mysql_report
 from tools.random_operator import *
 
+#pip3 install peewee
+
 class MySql_maker:
 
     def __init__(self):
