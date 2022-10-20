@@ -1,4 +1,3 @@
-from config.sys_config import env_config
 from data_maker import *
 import time
 

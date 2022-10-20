@@ -73,7 +73,7 @@ class MySqlOperator:
         except Exception as e:
             # 事务回滚
             self.conn.rollback()
-            print("get_sql_one error:", e)
+            print("execute error:", e)
             self.close()
 
     # 批量数据-修改、删除、新增
@@ -88,7 +88,7 @@ class MySqlOperator:
         except Exception as e:
             # 事务回滚
             self.conn.rollback()
-            print("get_sql_one error:", e)
+            print("executemany error:", e)
             self.close()
 
 
@@ -102,7 +102,16 @@ if __name__ == '__main__':
                     "passwd": "sd)*(YSHDG;l)D_FKds:D#&y}",
                     "host": "10.0.0.127",
                     "port": 3306},
-                "db": "supply_ims_new"
-    }
-    data = MySqlOperator(**sql_info).get_sql_all(sql)
+                    "db": "supply_ims"
+                }
+    # data = MySqlOperator(**sql_info).get_sql_all(sql)
+
+    mysql_info = {
+                    "user": "erp",
+                    "passwd": "sd)*(YSHDG;l)D_FKds:D#&y}",
+                    "host": "10.0.0.127",
+                    "port": 3306}
+
+    sql2 = "INSERT INTO `supply_report`.`rp_transfer_box_order_batch` (`delivery_warehouse_code`, `delivery_warehouse_name`, `delivery_warehouse_short_name`, `receive_warehouse_code`, `receive_warehouse_name`, `receive_warehouse_short_name`, `box_no`, `transfer_out_no`, `storage_location_code`, `container_no`, `out_state`, `goods_sku_code`, `goods_sku_name`, `wares_sku_code`, `wares_sku_name`, `sku_qty`, `batch_no`, `create_user_id`, `create_username`, `create_time`, `del_flag`) VALUES ('UKBH01', '英国1号仓', 'UK01', 'UKBH02', '英国2号仓', 'UK02', 'DC1200000001', 'DC1200000001-1', 'KW-RQ-TP-01', 'Q416TzaR', 3, 'J011194-2V', 'aa', 'J011194-2VA01', '餐桌吊灯 1/1 X1', 1, '', 308, '2022-10-20 17:10:03', 0);"
+    data = MySqlOperator(mysql_info, "supply_report").execute(sql2)
     print(data)
