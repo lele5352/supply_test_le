@@ -1,16 +1,15 @@
 import random
 from config.api_config.wms_api import wms_api_config
-from config.sys_config import env_config
 from tools.request_operator import RequestOperator
-from controller.ums_controller import UmsController
 from controller.wms_controller import WmsController
+from controller import *
 
 class PdaController(RequestOperator):
 
-    def __init__(self, ums):
-        self.prefix = env_config.get("app_prefix")
-        self.headers = ums.header
-        self.wms = WmsController(ums)
+    def __init__(self):
+        self.prefix = app_prefix
+        self.headers = headers
+        self.wms = WmsController()
         super().__init__(self.prefix, self.headers)
 
     def pda_picking_detail(self, pick_order_no):
@@ -41,14 +40,22 @@ class PdaController(RequestOperator):
             tray_infos = []     # 装托的sku信息
             data = []       # 接口内参数信息
             # 通过获取拣货单内已拣货sku信息列表数据，拼接按需装托相关参数
+
+
             for i in picking_detail_info.get("details"):
+                #修改批次相关的请求参数内key名称对齐新的接口
+                batch_infos = i["skuBatchList"]
+                for j in batch_infos:
+                    j["skuQty"] = j.pop('batchQty')
+
                 sku_info = {
                     "id": i["id"],
                     "waresSkuCode": i["waresSkuCode"],
                     "waresSkuName": i["waresSkuName"],
                     "goodsSkuCode": i["goodsSkuCode"],
                     "goodsSkuName": i["goodsSkuName"],
-                    "skuQty": i["realPickQty"]
+                    "skuQty": i["realPickQty"],
+                    "batchInfos": i["skuBatchList"]
                 }
                 tray_infos.append(sku_info)
             item = {
@@ -237,10 +244,12 @@ class PdaController(RequestOperator):
 
 
 if __name__ == '__main__':
-    ums = UmsController()
-    pda = PdaController(ums)
+
+    pda = PdaController()
+
     pda.wms.switch_warehouse("UKBH01")
-    pick_order_no = "DJH2204140002"
+
+    pick_order_no = "DJH2210190002"
     info = pda.pda_picking_detail(pick_order_no)
 
     picking_detail_info = info.get("data")
@@ -251,9 +260,10 @@ if __name__ == '__main__':
     # 创建调拨出库单
     pda.pda_finish_picking(pick_order_no, location_code_list)
 
+
     # 获取调拨出库-箱单相关信息
     kw = {
-        "transferOutNos": ['DC2204140002'],
+        "transferOutNos": ['DC2210190002'],
     }
     res = pda.wms.search_box_out_list(**kw)
     out_box_no_list = res.get("data")["records"]

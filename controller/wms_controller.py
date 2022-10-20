@@ -1,16 +1,17 @@
 from tools.request_operator import RequestOperator
 from tools.mysql_operator import MySqlOperator
-from config.sys_config import env_config
-from controller.ums_controller import UmsController
+from controller import ums
 from config.api_config.wms_api import wms_api_config
+from config.api_config.wms_service import wms_service_config
 from tools.log_operator import logger as log
+from controller import *
 import time
 
 class WmsController(RequestOperator):
 
-    def __init__(self, ums):
-        self.prefix = env_config.get("web_prefix")
-        self.headers = ums.header
+    def __init__(self):
+        self.prefix = web_prefix
+        self.headers = headers
         super().__init__(self.prefix, self.headers)
 
         # self.db = MySqlOperator(**env_config.get("mysql_info_ims"))
@@ -229,7 +230,7 @@ class WmsController(RequestOperator):
 
     """按需调拨"""
 
-    #调拨需求查询，获取调拨需求相关数据
+    # 调拨需求查询，获取调拨需求相关数据
     def demand_list(self, **kwargs):
         """
         调拨需求查询，获取调拨
@@ -547,11 +548,11 @@ class WmsController(RequestOperator):
 
 
 if __name__ == '__main__':
-    ums = UmsController()
-    wms = WmsController(ums)
+
+    wms = WmsController()
     # wms.get_warehouses_list()
-    wms.get_wareskucode_info("71230293819")
-    # wms.switch_warehouse("LELE-BH")
+    # wms.get_wareskucode_info("71230293819")
+    wms.switch_warehouse("UKBH01")
     # wms.entryorder("94991138113", ["A"], 2)
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
@@ -595,4 +596,3 @@ if __name__ == '__main__':
     # wms.cj_detail_page(153)
     # 仓间调拨确认拣货
     # wms.cj_confirmPick()
-

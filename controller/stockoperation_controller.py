@@ -3,14 +3,15 @@ from controller.ums_controller import UmsController
 from config.sys_config import env_config
 from config.api_config.stock_operation_api import stock_opeartion_config
 from tools.log_operator import logger as log
+from controller import *
 import time
 
 
 class StockOpearationController(RequestOperator):
 
-    def __init__(self, ums):
-        self.prefix = env_config.get("web_prefix")
-        self.headers = ums.header
+    def __init__(self):
+        self.prefix = web_prefix
+        self.headers = headers
         super().__init__(self.prefix, self.headers)
 
 
@@ -51,7 +52,7 @@ class StockOpearationController(RequestOperator):
 
     def adjust_receipt(self, adjust_sku_info):
         """
-
+        调整单
         :param adjust_sku_info:
         [
             {
@@ -83,7 +84,7 @@ class StockOpearationController(RequestOperator):
 
     def adjust_receipt_page(self, status, change_type, source):
         """
-
+        调整单分页查询
         :param status:  状态：null-全部，1-待审核，2-已审核，3-已驳回
         :param change_type:  变动类型 0-全部，1-盘亏，2-盘盈
         :param source: 来源：0-全部，1-人工创建，2-短拣异常
@@ -114,15 +115,15 @@ class StockOpearationController(RequestOperator):
 
 
 if __name__ == '__main__':
-    ums = UmsController()
-    st = StockOpearationController(ums)
 
-    st.adjust_receipt([{"waresSkuCode": "53586714577B01",
-                        "storageLocationCode": "KW-SJQ-01",
-                        "changeCount": "1",
-                        "changeType": "2",
-                        "adjustReason": "2"}])
 
-    # st.adjust_receipt_page(1, 0, 1)
+    st = StockOpearationController()
+    # st.adjust_receipt([{"waresSkuCode": "53586714577A01",
+    #                     "storageLocationCode": "KW-SJQ-01",
+    #                     "changeCount": "1",
+    #                     "changeType": "2",
+    #                     "adjustReason": "2"}])
 
-    st.adjust_receipt_batch_audit(2, [1259])
+    st.adjust_receipt_page(1, 0, 1)
+
+    # st.adjust_receipt_batch_audit(2, [1259])

@@ -1,14 +1,13 @@
 import time
 from config.api_config.oms_api import oms_api_config
-from config.sys_config import env_config
 from tools.request_operator import RequestOperator
-from controller.ums_controller import UmsController
+from controller import *
 
 
 class OmsController(RequestOperator):
-    def __init__(self, ums):
-        self.prefix = env_config.get("web_prefix")
-        self.headers = ums.header
+    def __init__(self):
+        self.prefix = web_prefix
+        self.headers = headers
         super().__init__(self.prefix, self.headers)
 
     # 获取仓库列表
@@ -44,7 +43,7 @@ class OmsController(RequestOperator):
         return
 
 
-    # 新增调拨需求时，获取sku相关数据信息
+    # 新增调拨需求时，获取sku相关数据信息----废除不再使用
     def list_sku(self, skutype, skucode):
         """
         :param skutype: 1-销售sku，2-部件
@@ -113,7 +112,6 @@ class OmsController(RequestOperator):
             code = i.get("code")
             bom_version = i.get("bom_version")
             sku_msg = self.list_sku(skutype, code)
-
             if skutype == 1:
                 sku_detail = {
                     "itemSkuCode": sku_msg[0]["skuCode"],
@@ -128,10 +126,10 @@ class OmsController(RequestOperator):
                 for item in sku_msg:
                     if item.get("mostBomVersion") == bom_version:
                         sku_detail = {
-                            "itemSkuCode": sku_msg[0]["skuCode"],
-                            "itemSkuType": sku_msg[0]["type"],
+                            "itemSkuCode": item["skuCode"],
+                            "itemSkuType": item["type"],
                             "quantity": i.get("num"),
-                            "itemPicture": sku_msg[0]["mainUrl"],
+                            "itemPicture": item["mainUrl"],
                             "bomVersion": bom_version
                         }
                         details.append(sku_detail)
@@ -139,7 +137,6 @@ class OmsController(RequestOperator):
             else:
                 print("sku_info列表为空：", sku_msg)
         remark = "DBXQ{0}".format(int(time.time()))
-
         oms_api_config.get("demand_create")["data"].update({
             "deliveryWarehouseId": delivery_warehouse_info.get("warehouseId"),
             "deliveryWarehouseName": delivery_warehouse_info.get("warehouseName"),
@@ -194,24 +191,26 @@ class OmsController(RequestOperator):
 
 
 if __name__ == '__main__':
-    ums = UmsController()
-    oms = OmsController(ums)
+
+    oms = OmsController()
     # oms.list_sku(2, "53586714577")
     sku_list = [
-        {"code": "53586714577",
-         "type": 1,
-         "bom_version": "F",
-         "num": 1
+         {
+            "code": "70076739388",
+            "type": 1,
+            "bom_version": "C",
+            "num": 3
          },
-        {"code": "53586714577",
-         "type": 2,
-         "bom_version": "H",
-         "num": 1
+        {
+            "code": "70076739388",
+            "type": 2,
+            "bom_version": "C",
+            "num": 2
          }
         ]
-    # remark = oms.demand_create("UKBH01", "", "UKBH02", "", sku_list)
-    remark = "DBXQ1658222471"
-    res = oms.demand_page(remark)
+    remark = oms.demand_create("LELE-ZZ", "LELE-ZF", "LELE-ZF", "", sku_list)
+    # remark = "DBXQ1658222471"
+    # res = oms.demand_page(remark)
     # oms_demand_list = res.get("data")["records"]
 
     # oms.cancel_demand(751)
