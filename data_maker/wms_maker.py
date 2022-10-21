@@ -48,9 +48,9 @@ class WmsMaker:
     def transfer_maker(self, delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
                        receive_target_warehouse_code, sku_list, delivery_kw_tp_code_list,
                        receive_kw_sj_code_list):
-        """
         # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
+        """
 
         # 获取调拨需求sku相关信息---废除不在使用
         # sku_list = self.oms.list_sku(sku_type, skucode)
@@ -70,16 +70,21 @@ class WmsMaker:
         kw = {
             "sourceCodeList": source_code_list,
         }
+        """
+
+        kw = {
+            "demandCodeList": "d"
+        }
         # 查询生成的调拨需求列表
         res = self.wms.demand_list(**kw)
         # 获取调拨需求相关信息
         demands_info = res.get("data")["records"]
-        
+
         # 新增调拨拣货单
         res = self.wms.picking_create(demands_info)
         # 获取调拨拣货单号
         pick_order_no = res.get("data")
-        """
+
         pick_order_no = 'DJH2210200015'
 
         # 分配拣货人
