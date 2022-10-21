@@ -101,7 +101,7 @@ class StockOpearationController(RequestOperator):
 
     def adjust_receipt_batch_audit(self, audit_result, ids):
         """
-
+        调整单-审核
         :param audit_result: int 调整结果：1-通过，2-驳回
         :param ids: list 调整单id列表
         :return:
@@ -124,6 +124,6 @@ if __name__ == '__main__':
     #                     "changeType": "2",
     #                     "adjustReason": "2"}])
 
-    st.adjust_receipt_page(1, 0, 1)
+    # st.adjust_receipt_page(1, 0, 1)
 
-    # st.adjust_receipt_batch_audit(2, [1259])
+    st.adjust_receipt_batch_audit(2, [5382])

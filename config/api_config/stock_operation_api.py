@@ -1,6 +1,6 @@
 stock_opeartion_config = {
     "get_wares_skuname_by_code": {
-        "uri_path": "/api/ec-stockoperation-api/adjustReceipt/getWaresSkuNameByCode?",
+        "uri_path": "/api/ec-wms-api/adjustReceipt/getWaresSkuNameByCode?",
         "method": "get",
         "data": {
             "waresSkuCode": "53586714577B01",
@@ -8,7 +8,7 @@ stock_opeartion_config = {
         }
     },
     "get_storage_location_info": {
-        "uri_path": "/api/ec-stockoperation-api/adjustReceipt/getStorageLocationInfo?",
+        "uri_path": "/api/ec-wms-api/adjustReceipt/getStorageLocationInfo?",
         "method": "get",
         "data": {
             "waresSkuCode": "53586714577B01",
@@ -17,7 +17,7 @@ stock_opeartion_config = {
         }
     },
     "adjust_receipt": {
-        "uri_path": "/api/ec-stockoperation-api/adjustReceipt",
+        "uri_path": "/api/ec-wms-api/adjustReceipt",
         "method": "post",
         "data": [
             {
@@ -32,7 +32,7 @@ stock_opeartion_config = {
         ]
     },
     "adjust_receipt_page": {
-        "uri_path": "/api/ec-stockoperation-api/adjustReceipt/page",
+        "uri_path": "/api/ec-wms-api/adjustReceipt/page",
         "method": "post",
         "data": {
             "waresSkuCode": "",
@@ -53,7 +53,7 @@ stock_opeartion_config = {
         }
     },
     "adjust_receipt_batch_audit": {
-        "uri_path": "/api/ec-stockoperation-api/adjustReceipt/batchAudit",
+        "uri_path": "/api/ec-wms-api/adjustReceipt/batchAudit",
         "method": "post",
         "data": {
             "auditResult": 2, #调整结果：1-通过，2-驳回

@@ -40,13 +40,7 @@ class PdaController(RequestOperator):
             tray_infos = []     # 装托的sku信息
             data = []       # 接口内参数信息
             # 通过获取拣货单内已拣货sku信息列表数据，拼接按需装托相关参数
-
-
             for i in picking_detail_info.get("details"):
-                #修改批次相关的请求参数内key名称对齐新的接口
-                batch_infos = i["skuBatchList"]
-                for j in batch_infos:
-                    j["skuQty"] = j.pop('batchQty')
 
                 sku_info = {
                     "id": i["id"],
@@ -55,7 +49,10 @@ class PdaController(RequestOperator):
                     "goodsSkuCode": i["goodsSkuCode"],
                     "goodsSkuName": i["goodsSkuName"],
                     "skuQty": i["realPickQty"],
-                    "batchInfos": i["skuBatchList"]
+                    "batchInfos": [{
+                                        'skuQty': i["realPickQty"],
+                                        'batchNo': ''
+                                    }]
                 }
                 tray_infos.append(sku_info)
             item = {
@@ -94,17 +91,19 @@ class PdaController(RequestOperator):
                         "waresSkuName": i["waresSkuName"],
                         "goodsSkuCode": i["goodsSkuCode"],
                         "goodsSkuName": i["goodsSkuName"],
-                        "skuQty": 1
+                        "skuQty": 1,
+                        'batchInfos': [{
+                            'skuQty': 1,
+                            'batchNo': ''
+                        }]
                     }
                     #装托的参数拆散后，追加到某个列表内
                     tray_infos.append(sku_info)
             #打乱待装托参数的列表，实现后续随机装托
             random.shuffle(tray_infos)
-            # tray_infos_list = []
             #待装托的参数列表，按照传入的装托库位个数打散成不同的子列表，便于后续装托请求参数拼接
             for i in range(0, len(location_code_list)):
                 tray_info = tray_infos[i::len(location_code_list)]
-                # tray_infos_list.append(tray_info)
                 item = {
                     "storageLocationCode": location_code_list[i],
                     "pickOrderNo": pick_order_no,
@@ -226,6 +225,13 @@ class PdaController(RequestOperator):
 
 
     def pda_transfer_in_receive_all(self, box_no, storage_location_code, transfer_in_no):
+        """
+        调拨入库-整箱上架
+        @param box_no: 箱单号
+        @param storage_location_code: 收货库位
+        @param transfer_in_no: 调拨入库单号
+        @return:
+        """
         wms_api_config.get("pda_transfer_in_receive_all")["data"].update({
             "boxNo": box_no,
             "storageLocationCode": storage_location_code,
@@ -238,25 +244,75 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def pda_transfer_in_receive_one(self):
-        pass
+    def pda_transfer_in_box_scan(self, box_no, type=2):
+        """
+        调拨入库-逐渐上架-扫描箱单后详情页信息
+        @param box_no:
+        @param type:
+        @return:
+        """
+        wms_api_config.get("pda_transfer_in_box_scan")["data"].update({
+            "boxNo": box_no,
+            "type": type
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("pda_transfer_in_box_scan"))
+            print("调拨入库-扫描箱单后详情页信息：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+
+    def pda_transfer_in_receive_one(self, info):
+        """
+        调拨入库-逐渐上架
+        @param info:
+        @return:
+        """
+
+        wms_api_config.get("pda_transfer_in_receive_one")["data"].update(info)
+        try:
+            res = self.send_request(**wms_api_config.get("pda_transfer_in_receive_one"))
+            print("调拨入库-逐渐上架：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
 
 
 
 if __name__ == '__main__':
 
     pda = PdaController()
+    box_no = 'DC2210210012-1'
+    sj_kw = ["KW-SJQ-01"]
+    info = pda.pda_transfer_in_box_scan(box_no).get("data")
+    box_info_prefix = {
+        "boxNo": info.get("boxNo"),
+        "transferInNo": info.get("transferInNo"),
+        "storageLocationCode": sj_kw[0]
+    }
+    box_info_prefix = {
+        ""
+    }
+    for i in info.get("details"):
+        pass
+    "从这里继续"
 
-    pda.wms.switch_warehouse("UKBH01")
+    print(info)
 
-    pick_order_no = "DJH2210190002"
+    """
+    # pda.wms.switch_warehouse("UKBH01")
+    pick_order_no = "DJH2210210005"
     info = pda.pda_picking_detail(pick_order_no)
 
     picking_detail_info = info.get("data")
-    location_code_list = ["KW-RQ-TP-01"]
+    location_code_list = ["KW-RQ-TP-01", "KW-RQ-TP-02", "KW-RQ-TP-03"]
     # location_code = "KW-RQ-TP-01"
     # 按需装托
-    pda.pda_submit_tray_info(location_code_list, picking_detail_info)
+    # pda.pda_submit_tray_info(location_code_list, picking_detail_info)
+    pda.pda_submit_tray_info_many(location_code_list, picking_detail_info)
+
+    
     # 创建调拨出库单
     pda.pda_finish_picking(pick_order_no, location_code_list)
 
@@ -289,7 +345,7 @@ if __name__ == '__main__':
     storage_location_code_list = ["KW-SJQ-01"]
     for i in box_no_info:
         pda.pda_transfer_in_receive_all(i.get("boxNo"), storage_location_code_list[0], i.get("transferInNo"))
-
+    """
 
     # box_no = "DC2204120030-1"
     # pda.pda_review_submit(box_no, location_code)

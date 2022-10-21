@@ -1,4 +1,5 @@
 from data_maker import *
+from data_maker.test_create_trf_demand import create_demand_all
 import time
 
 
@@ -25,6 +26,7 @@ class WmsMaker:
 
     def add_adjust_stock(self, warehouse_code, adjust_sku_info, status, change_type, source):
         """
+        调整单--新增
         :param warehouse_code: 仓库编码
         :param adjust_sku_info: 调整的sku信息
         :param status: 查询条件--状态：null-全部，1-待审核，2-已审核，3-已驳回
@@ -50,7 +52,6 @@ class WmsMaker:
                        receive_kw_sj_code_list):
         # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
-        """
 
         # 获取调拨需求sku相关信息---废除不在使用
         # sku_list = self.oms.list_sku(sku_type, skucode)
@@ -70,11 +71,6 @@ class WmsMaker:
         kw = {
             "sourceCodeList": source_code_list,
         }
-        """
-
-        kw = {
-            "demandCodeList": "d"
-        }
         # 查询生成的调拨需求列表
         res = self.wms.demand_list(**kw)
         # 获取调拨需求相关信息
@@ -85,7 +81,7 @@ class WmsMaker:
         # 获取调拨拣货单号
         pick_order_no = res.get("data")
 
-        pick_order_no = 'DJH2210200015'
+        # pick_order_no = 'DJH2210200015'
 
         # 分配拣货人
         self.wms.assign_pick_user(pick_order_no)
@@ -138,11 +134,20 @@ class WmsMaker:
         kw_box_in = {
             "handoverNo": handover_no,
         }
-        # 调拨入库-整箱上架
         res = self.pda.wms.search_box_in_list(**kw_box_in)
         box_no_info = res.get("data")["records"]
+        # list_info = []
         for i in box_no_info:
-            self.pda.pda_transfer_in_receive_all(i.get("boxNo"), receive_kw_sj_code_list[0], i.get("transferInNo"))
+            # list_info.append(i.get("boxNo"))
+            box_info = self.pda.pda_transfer_in_box_scan(i.get("boxNo"))
+
+
+
+
+
+        # 调拨入库-整箱上架
+        # for i in box_no_info:
+        #     self.pda.pda_transfer_in_receive_all(i.get("boxNo"), receive_kw_sj_code_list[0], i.get("transferInNo"))
 
 
 

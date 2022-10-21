@@ -401,7 +401,7 @@ class WmsController(RequestOperator):
 
     def search_box_in_list(self, **kwargs):
         """
-        查询调拨入库-箱单相关信息
+        PC-查询调拨入库-箱单相关信息
         :param kwargs: category：
         :return:
         """
@@ -427,6 +427,7 @@ class WmsController(RequestOperator):
         else:
             log.error(res)
             return
+
 
 
     """仓间调拨相关"""
@@ -472,7 +473,6 @@ class WmsController(RequestOperator):
         else:
             log.error(res)
             return
-
 
 
     def cj_platform_transferout_page(self, **kwargs):
@@ -541,8 +541,6 @@ class WmsController(RequestOperator):
             return
 
 
-    """库内服务相关"""
-    # def stockoperation_adjustReceipt
 
 
 

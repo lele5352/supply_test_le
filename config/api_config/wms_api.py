@@ -110,28 +110,28 @@ wms_api_config = {
         },
     },
 
-    # 创建拣货单
+    # PC-创建拣货单
     "picking_create": {
         "uri_path": "/api/ec-wms-api/transferOut/picking/create",
         "method": "post",
         "data": {"demandCodes": ["XQ2204080002"], "pickType": 1},
     },
 
-    # 分配拣货人
+    # PC-分配拣货人
     "assign_pick_user": {
         "uri_path": "/api/ec-wms-api/transferOut/picking/assignPickUser",
         "method": "post",
         "data": {"pickOrderNos": ["DJH2204080002"], "pickUsername": "黄乐乐", "pickUserId": "10"},
     },
 
-    # 查询拣货单详情
+    # PC-查询拣货单详情
     "picking_detail": {
         "uri_path": "/api/ec-wms-api/transferOut/picking/detail/DJH2204080002",
         "method": "get",
         "data": {"t": "1642684741035"},
     },
 
-    # 确认拣货
+    # PC-确认拣货
     "do_picking": {
         "uri_path": "/api/ec-wms-api/transferOut/picking/doPicking",
         "method": "post",
@@ -251,7 +251,7 @@ wms_api_config = {
         }
     },
 
-    # 查询调拨入库-箱单
+    # PC-查询调拨入库-箱单
     "search_box_in_list": {
         "uri_path": "/api/ec-wms-api/transferIn/input/box/page",
         "method": "post",
@@ -292,12 +292,32 @@ wms_api_config = {
         }
     },
 
+    # PDA-调拨入库-逐渐上架查看箱单详情
+    "pda_transfer_in_box_scan": {
+        "uri_path": "/api/ec-wms-api/transferIn/input/box/scan/pda",
+        "method": "post",
+        "data": {
+                    "boxNo": "DC2210210012-1",
+                    "type": 2,  #类型 1整箱 2-逐件
+                }
+    },
+
     # PDA-调拨入库-逐渐上架
     "pda_transfer_in_receive_one": {
         "uri_path": "/api/ec-wms-api/transferIn/input/sku/shelf",
         "method": "post",
-        "data": ""
+        "data": {
+                    "boxNo": "DC2210210012-1",
+                    "storageLocationCode": "KW-SJQ-01",
+                    "transferInNo": "DR2210210011",
+                    "details": [{
+                        "waresSkuCode": "53586714577C01",
+                        "quantity": 1
+                    }]
+                }
     },
+
+
 
     # 仓间调拨-查询sku信息
     "cj_sku_info_page": {
