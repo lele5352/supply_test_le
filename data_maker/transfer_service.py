@@ -48,13 +48,13 @@ class WmsMaker:
         res = self.wms.demand_list(**kw)
         # 获取调拨需求相关信息
         demands_info = res.get("data")["records"]
-
+        
         # 新增调拨拣货单
         res = self.wms.picking_create(demands_info)
         # 获取调拨拣货单号
         pick_order_no = res.get("data")
 
-        # pick_order_no = 'DJH2210200015'
+        # pick_order_no = 'DJH2210310002'
 
         # 分配拣货人
         self.wms.assign_pick_user(pick_order_no)
@@ -65,22 +65,24 @@ class WmsMaker:
         # 确认拣货--当前是完全拣货
         self.wms.do_picking(pick_order_no, picking_info)
 
+        # pick_order_no = 'DJH2210260016'
         # PDA-按需装托时，扫码拣货单号，获取拣货单信息
         info = self.pda.pda_picking_detail(pick_order_no)
         picking_detail_info = info.get("data")
 
+
         # 按需装托
         # 按需装托在单个库位上
-        self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
+        # self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
         # 按需装托在多个库位上
-        # self.pda.pda_submit_tray_info_many(delivery_kw_tp_code_list, picking_detail_info)
-
+        self.pda.pda_submit_tray_info_many(delivery_kw_tp_code_list, picking_detail_info)
 
         # 创建出库单以及生成箱单
         res = self.pda.pda_finish_picking(pick_order_no, delivery_kw_tp_code_list)
         # 创建出库单结果： {'code': 200, 'message': '操作成功', 'data': 'DC2204120031'}
         transfer_out_no = res.get("data")
 
+        # transfer_out_no = "DC2210270018"
         # 查询调拨出库单下的箱单列表
         kw = {
             "transferOutNos": [transfer_out_no],
@@ -98,9 +100,8 @@ class WmsMaker:
         handover_no = res.get("data")["handoverNo"]
         # 调拨发货
         self.pda.pda_delivery_confirm(handover_no)
-
-
-        # handover_no = "DBJJ2208310009"
+        
+        # handover_no = "DBJJ2210270002"
         # 切换到收货仓库货仓库
         self.wms.switch_warehouse(receive_warehouse_code)
         # 调拨入库--确认收货
@@ -128,6 +129,6 @@ if __name__ == '__main__':
     # transfer.add_adjust_stock("UKBH01", adjust_sku_info, 1, 0, 1)
 
     #多库位装托
-    # transfer.transfer_maker("UKBH01", "UKBH02", ["KW-RQ-TP-01", "KW-RQ-TP-02", "KW-RQ-TP-03"], ["KW-SJQ-01"])
+    transfer.transfer_maker("UKBH01", "", "UKBH02", "", ["KW-RQ-TP-01", "KW-RQ-TP-02", "KW-RQ-TP-03"], ["KW-SJQ-01"])
     #单库位装托
-    transfer.transfer_maker("UKBH01", "", "UKBH02", "", ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    # transfer.transfer_maker("UKBH01", "", "UKBH02", "", ["KW-RQ-TP-01"], ["KW-SJQ-01"])

@@ -493,8 +493,8 @@ class WmsController(RequestOperator):
             return
 
 
-    def cj_detail_page(self, pick_order_id):
-        uri = wms_api_config.get("cj_detail_page")["uri_path"].format(pick_order_id)
+    def cj_detail_page(self, transfer_out_id):
+        uri = wms_api_config.get("cj_detail_page")["uri_path"].format(transfer_out_id)
         wms_api_config.get("cj_detail_page").update({
             "uri_path": uri
         })
@@ -591,6 +591,17 @@ if __name__ == '__main__':
     }
     # wms.cj_platform_transferout_page(**search_cj)
     # 仓间调拨-出库单详情页
-    # wms.cj_detail_page(153)
+    # wms.cj_detail_page(575)
     # 仓间调拨确认拣货
-    # wms.cj_confirmPick()
+    pick_order_id = 240
+    pick_order_no = 'CJJH2212120001'
+    pick_items = [
+  {
+    "skuCode": "53586714577C01",
+    "skuName": "bom-C：1 1/1 X1",
+    "skuQty": 4,
+    "pickQty": 4,
+    "locationCode": "KW-SJQ-03,KW-SJQ-01,KW-SJQ-02,UK01-A01-102"
+  }
+]
+    wms.cj_confirmPick(pick_order_id,pick_order_no,pick_items)
