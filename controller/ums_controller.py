@@ -3,22 +3,23 @@ from tools.log_operator import logger as log
 
 from tools.request_operator import RequestOperator
 from tools.rsq_operator import encrypt_data
-from config.api_config.ums_api import ums_api_config
-from config.sys_config import env_config, user
+# from config.api_config.ums_api import ums_api_config
+from config.api_config.ums_api import UmsApi
+# from config.sys_config import env_config, user
+from config import env_config, user
+
 
 class UmsController(RequestOperator):
     def __init__(self):
-        self.prefix = env_config.get('web_prefix')
-        self.headers = {'Content-Type': 'application/json;charset=UTF-8', "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
-        # self.header = self.ums_login()
+        self.prefix = env_config.get('app')
+        self.headers = {'Content-Type': 'application/json;charset=UTF-8', "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
         super().__init__(self.prefix, self.headers)
 
     def get_public_key(self):
         timestamp = int(time.time() * 1000)
-        ums_api_config['get_public_key']['data'].update({
-            't': timestamp
-        })
-        res = self.send_request(**ums_api_config['get_public_key'])
+        UmsApi.GetPublicKey.data.update({'t': timestamp})
+        info = UmsApi.GetPublicKey.get_attributes()
+        res = self.send_request(**info)
         # 获取到公钥之后拼装begin和end返回
         key = res['data']
         begin = '-----BEGIN PUBLIC KEY-----\n'
@@ -53,33 +54,30 @@ class UmsController(RequestOperator):
         # 加密密码并更新密码为加密后的
         encrypt_password = encrypt_data(user['password'], public_key)
         user['password'] = encrypt_password
-        ums_api_config['login']['data'].update(
-            {
-                "password": user['password'],
-                "username": user['username']
-            }
-        )
+        UmsApi.Login.data.update({
+            "password": user['password'],
+            "username": user['username']
+        })
 
         try:
-            res = self.send_request(**ums_api_config['login'])
+            info = UmsApi.Login.get_attributes()
+            res = self.send_request(**info)
             authorization_str = res['data']['tokenHead'] + ' ' + res['data']['token']
             headers = {'Content-Type': 'application/json;charset=UTF-8', "Authorization": authorization_str,
                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
+            print(headers)
             return headers
-        except:
-            print('账号登录失败！')
+        except Exception as e:
+            print('账号登录失败！', e)
             return None
 
     def get_app_headers(self):
-        authorization = self.ums_login()
-        headers = {'Content-Type': 'application/json;charset=UTF-8', "Authorization": authorization, "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"}
-        return headers
+        return self.ums_login()
 
     def user_search(self):
         self.headers = self.get_app_headers()
-        res = self.send_request(**ums_api_config['user_search'])
+        info = UmsApi.UserSearch.get_attributes()
+        res = self.send_request(**info)
         print(res)
 
 
-if __name__ == '__main__':
-    UmsController().ums_login()

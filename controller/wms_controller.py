@@ -7,11 +7,12 @@ from tools.log_operator import logger as log
 from controller import *
 import time
 
+
 class WmsController(RequestOperator):
 
     def __init__(self):
         self.prefix = web_prefix
-        self.headers = headers
+        self.headers = app_headers
         super().__init__(self.prefix, self.headers)
 
         # self.db = MySqlOperator(**env_config.get("mysql_info_ims"))

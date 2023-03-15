@@ -8,7 +8,7 @@ class PdaController(RequestOperator):
 
     def __init__(self):
         self.prefix = app_prefix
-        self.headers = headers
+        self.headers = app_headers
         self.wms = WmsController()
         super().__init__(self.prefix, self.headers)
 

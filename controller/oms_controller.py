@@ -7,7 +7,7 @@ from controller import *
 class OmsController(RequestOperator):
     def __init__(self):
         self.prefix = web_prefix
-        self.headers = headers
+        self.headers = app_headers
         super().__init__(self.prefix, self.headers)
 
     # 获取仓库列表

@@ -20,7 +20,7 @@ oms_api_config = {
     },
     # 新增调拨需求
     "demand_create": {
-        "uri_path": "/api/ec-oms-api/demand/create",
+        "uri_path": "/api/ec-rms-api/demand/create",
         "method": "post",
         "data": {
             "deliveryWarehouseId": " ",

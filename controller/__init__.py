@@ -1,10 +1,10 @@
 from controller.ums_controller import UmsController
-from config.sys_config import env_config
+from config import env_config
 
 
-ums = UmsController()
-headers = ums.ums_login()
+from robots import app_headers
 
-web_prefix = env_config.get("web_prefix")
-app_prefix = env_config.get("app_prefix")
-transfer_service_prefix = env_config.get('transfer_service_prefix')
+
+web_prefix = env_config.get("app")
+app_prefix = env_config.get("app")
+transfer_service_prefix = env_config.get("transfer")
