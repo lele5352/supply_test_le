@@ -1,6 +1,8 @@
 from tools.request_operator import RequestOperator
 from controller.ums_controller import UmsController
-from config.sys_config import env_config
+# from config.sys_config import env_config
+from config import env_config
+
 from config.api_config.stock_operation_api import stock_opeartion_config
 from tools.log_operator import logger as log
 from controller import *

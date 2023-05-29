@@ -1,8 +1,8 @@
 from tools.request_operator import RequestOperator
 from tools.mysql_operator import MySqlOperator
-from controller import ums
+# from controller import ums
 from config.api_config.wms_api import wms_api_config
-from config.api_config.wms_service import wms_service_config
+# from config.api_config.wms_api_config import wms_service_config
 from tools.log_operator import logger as log
 from controller import *
 import time
@@ -64,7 +64,6 @@ class WmsController(RequestOperator):
                     "id": i["id"]
                 }
         return warehouse_info
-
 
     def switch_warehouse(self, warehouse_code):
         """
@@ -549,9 +548,9 @@ class WmsController(RequestOperator):
 if __name__ == '__main__':
 
     wms = WmsController()
-    # wms.get_warehouses_list()
+    wms.get_warehouses_list()
     # wms.get_wareskucode_info("71230293819")
-    wms.switch_warehouse("UKBH01")
+    # wms.switch_warehouse("UKBH01")
     # wms.entryorder("94991138113", ["A"], 2)
     # wms.get_sku_info_by_entryCode(wms.entryorder("53586714577", ["B", "D"], 5))
     # wms.get_entry_order_by_id("1843")
@@ -594,15 +593,15 @@ if __name__ == '__main__':
     # 仓间调拨-出库单详情页
     # wms.cj_detail_page(575)
     # 仓间调拨确认拣货
-    pick_order_id = 240
-    pick_order_no = 'CJJH2212120001'
-    pick_items = [
-  {
-    "skuCode": "53586714577C01",
-    "skuName": "bom-C：1 1/1 X1",
-    "skuQty": 4,
-    "pickQty": 4,
-    "locationCode": "KW-SJQ-03,KW-SJQ-01,KW-SJQ-02,UK01-A01-102"
-  }
-]
-    wms.cj_confirmPick(pick_order_id,pick_order_no,pick_items)
+    # pick_order_id = 240
+    # pick_order_no = 'CJJH2212120001'
+    # pick_items = [
+#         {
+#         "skuCode": "53586714577C01",
+#         "skuName": "bom-C：1 1/1 X1",
+#         "skuQty": 4,
+#         "pickQty": 4,
+#         "locationCode": "KW-SJQ-03,KW-SJQ-01,KW-SJQ-02,UK01-A01-102"
+#         }
+# ]
+#     wms.cj_confirmPick(pick_order_id,pick_order_no,pick_items)

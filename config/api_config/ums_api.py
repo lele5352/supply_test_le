@@ -2,7 +2,7 @@ from config.api_config import ApiConfig
 ums_api_config = {
     "get_public_key": {
         "uri_path": "/api/ec-ums-api/user/rsa/publicKey",
-        "method": "get",
+        "method": "GET",
         "data": {'t': 0}
     },
     "login": {
@@ -35,12 +35,12 @@ ums_api_config = {
 class UmsApi:
     class GetPublicKey(ApiConfig):
         uri_path = "/api/ec-ums-api/user/rsa/publicKey"
-        method = "get"
+        method = "GET"
         data = {'t': 0}
 
     class Login(ApiConfig):
         uri_path = "/api/ec-ums-api/user/login"
-        method = "post"
+        method = "POST"
         data = {
             "code": "dw2m",
             "grant_type": "password",
@@ -52,7 +52,7 @@ class UmsApi:
 
     class UserSearch(ApiConfig):
         uri_path = "/api/ec-ums-api/user/page"
-        method = "get"
+        method = "GET"
         data = {
             "current": 1,
             "size": 15,

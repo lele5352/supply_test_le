@@ -81,7 +81,7 @@ class WmsMaker:
         # 获取调拨拣货单号
         pick_order_no = res.get("data")
         """
-        pick_order_no = 'DJH2303130002'
+        pick_order_no = 'DJH2304070001'
 
         # 分配拣货人
         self.wms.assign_pick_user(pick_order_no)
@@ -99,9 +99,9 @@ class WmsMaker:
 
         # 按需装托
         #按需装托在单个库位上
-        self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
+        # self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
         #按需装托在多个库位上
-        # self.pda.pda_submit_tray_info_many(delivery_kw_tp_code_list, picking_detail_info)
+        self.pda.pda_submit_tray_info_many(delivery_kw_tp_code_list, picking_detail_info)
 
         # pick_order_no = 'DJH2210260010'
         # 创建出库单以及生成箱单
@@ -259,8 +259,9 @@ if __name__ == '__main__':
         }
     ]
     #160环境
-    # transfer.transfer_maker("UKBH01", "", "GZZF", "", sku_list, ["KW-RQ-TP-08"], ["KW-SJQ-01"])
-    transfer.transfer_maker("UKBH01", "", "FSZZ", "LA01", sku_list, ["KW-RQ-TP-08"], ["KW-SJQ-01"])
+    transfer.transfer_maker("UKBH01", "", "UKBH02", "", sku_list, ["KW-RQ-TP-08", "KW-RQ-TP-07", "KW-RQ-TP-06"],
+                            ["KW-SJQ-01"])
+    # transfer.transfer_maker("UKBH01", "", "FSZZ", "LA01", sku_list, ["KW-RQ-TP-08"], ["KW-SJQ-01"])
     # transfer.transfer_maker("FSBH", "", "UKBH01", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
     # transfer.transfer_maker("FSZZ", "LA01", "LA01", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
     #189环境

@@ -1,13 +1,13 @@
-from controller.ums_controller import UmsController
 from config.api_config.ums_api import UmsApi
 from tools.rsq_operator import encrypt_data
 from config import env_config, user
 from urllib.parse import urljoin
 import time
 import requests
+import json
 
 
-prefix = env_config.get("app")
+app_prefix = env_config.get("app")
 transfer_service_prefix = env_config.get("transfer")
 
 
@@ -22,7 +22,7 @@ def login():
 
     timestamp = int(time.time() * 1000)
     UmsApi.GetPublicKey.data.update({'t': timestamp})
-    url = urljoin(prefix, key_count['uri_path'])
+    url = urljoin(app_prefix, key_count['uri_path'])
     res = requests.get(url, params=key_count['data']).json()
 
     # 获取到公钥之后拼装begin和end返回
@@ -42,7 +42,7 @@ def login():
                 "username": user['username']
             }
         )
-        url = urljoin(prefix, login_content['uri_path'])
+        url = urljoin(app_prefix, login_content['uri_path'])
         login_res = requests.post(url, json=data).json()
         authorization_str = login_res['data']['tokenHead'] + ' ' + login_res['data']['token']
         headers = {'Content-Type': 'application/json;charset=UTF-8', "Authorization": authorization_str}
@@ -51,17 +51,18 @@ def login():
         print('账号登录失败！', e)
         return None
 
-"""
-@todo: peewee学习之后
+
 def get_service_headers():
     username = user['username']
-    user_id = UMSDBOperator.query_sys_user(username).get('id')
-    service_header = {"user": json.dumps({"username": username, 'user_id': user_id}), "serviceName": "ec-scm-service"}
+    # user_id = UMSDBOperator.query_sys_user(username).get('id')
+    user_id = 308
+    service_header = {"user": json.dumps({'username': username, 'user_id': user_id}), "serviceName": "ec-scm-service"}
     return service_header
-"""
 
 
 app_headers = login()
+service_headers = get_service_headers()
+
 
 if __name__ == '__main__':
     login()

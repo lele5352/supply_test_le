@@ -1,7 +1,7 @@
 from tools.request_operator import RequestOperator
 from tools.mysql_operator import MySqlOperator
 from controller import *
-from config.api_config.wms_service import WmsService
+from config.api_config.wms_api_config import TransferApiConfig
 from tools.log_operator import logger as log
 import time
 
@@ -22,8 +22,8 @@ class WmsServiceController(RequestOperator):
             :param kwargs:
             :return: res.data
         """
-        WmsService.TransferDemandCreate.data.update(**kwargs)
-        info = WmsService.TransferDemandCreate.get_attributes()
+        TransferApiConfig.TransferDemandCreate.data.update(**kwargs)
+        info = TransferApiConfig.TransferDemandCreate.get_attributes()
         res = self.send_request(**info)
 
         if res.get("code") == 200:
@@ -41,9 +41,9 @@ class WmsServiceController(RequestOperator):
             :return:
         """
         # wms_service_config.get("transferDemand_cancel")["data"].update(kwargs)
-        WmsService.TransferDemandCancle.data.update(**kwargs)
+        TransferApiConfig.TransferDemandCancle.data.update(**kwargs)
         # res = self.send_request(**wms_service_config.get("transferDemand_cancel"))
-        info = WmsService.TransferDemandCancle.get_attributes()
+        info = TransferApiConfig.TransferDemandCancle.get_attributes()
         res = self.send_request(**info)
         if res.get("code") == 200:
             log.info(res)
