@@ -56,10 +56,15 @@ class WmsServiceController(RequestOperator):
 
 if __name__ == '__main__':
     wms_service = WmsServiceController()
-    # kw = {"demandType": 2, "goodsSkuCode": "53586714577", "bomVersion": "C"}
-    # res = wms_service.service_demand_create(**kw)
-    # demand_code = res.get("data")["demandCode"]
+    kw = {
+            "deliveryWarehouseCode": "UKBH01", "deliveryTargetWarehouseCode": "",
+            "receiveWarehouseCode": "UKBH02", "receiveTargetWarehouseCode": "",
+            "demandType": 2, "goodsSkuCode": "53586714577", "bomVersion": "C"
+    }
+    res = wms_service.service_demand_create(**kw)
+    print(res)
+    demand_code = res.get("data")["demandCode"]
 
-    kw = {"demandCode": "demand_code"}
-    kw = {"demandCode": "XQ2303150002"}
-    res = wms_service.service_demand_cancel(**kw)
+    # kw = {"demandCode": "demand_code"}
+    # kw = {"demandCode": "XQ2303150002"}
+    # res = wms_service.service_demand_cancel(**kw)

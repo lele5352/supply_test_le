@@ -1,3 +1,5 @@
+#当前配置已废除不用
+
 wms_api_config = {
     # 获取全部仓库信息列表
     "get_warehouses_list": {

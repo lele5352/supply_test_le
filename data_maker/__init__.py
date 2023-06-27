@@ -4,7 +4,10 @@ from controller.oms_controller import OmsController
 from controller.pda_controller import PdaController
 from controller.wms_service_controller import WmsServiceController
 from config import env_config
-from tools.mysql_operator import MySqlOperator
+
+#最新
+from robots.wms_robot import WmsServiceRobot
+
 
 web_prefix = env_config.get("web_prefix")
 app_prefix = env_config.get("app_prefix")
@@ -15,7 +18,9 @@ wms = WmsController()
 st = StockOpearationController()
 oms = OmsController()
 pda = PdaController()
-wms_service = WmsServiceController()
+# wms_service = WmsServiceController()   不适用
+
+wms_service_robot = WmsServiceRobot("transfer")
 
 
 mysql_info = env_config.get('mysql_info')
