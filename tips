@@ -1,3 +1,13 @@
+响应结果信息格式化输出
+    import requests
+    import pprint
+    url = 'https://randomuser.me/api/?results=1'
+    users = requests.get(url).json()
+    pprint.pprint(users)
+
+
+
+
 Mac键盘符号和修饰键说明
 
 ⌘ Command

@@ -4,6 +4,7 @@ from tools.request_operator import RequestOperator
 from controller.wms_controller import WmsController
 from controller import *
 
+
 class PdaController(RequestOperator):
 
     def __init__(self):
@@ -37,11 +38,10 @@ class PdaController(RequestOperator):
         """
         if picking_detail_info:
             pick_order_no = picking_detail_info.get("pickOrderNo")
-            tray_infos = []     # 装托的sku信息
-            data = []       # 接口内参数信息
+            tray_infos = []  # 装托的sku信息
+            data = []  # 接口内参数信息
             # 通过获取拣货单内已拣货sku信息列表数据，拼接按需装托相关参数
             for i in picking_detail_info.get("details"):
-
                 sku_info = {
                     "id": i["id"],
                     "waresSkuCode": i["waresSkuCode"],
@@ -50,9 +50,9 @@ class PdaController(RequestOperator):
                     "goodsSkuName": i["goodsSkuName"],
                     "skuQty": i["realPickQty"],
                     "batchInfos": [{
-                                        'skuQty': i["realPickQty"],
-                                        'batchNo': ''
-                                    }]
+                        'skuQty': i["realPickQty"],
+                        'batchNo': ''
+                    }]
                 }
                 tray_infos.append(sku_info)
             item = {
@@ -80,10 +80,10 @@ class PdaController(RequestOperator):
         """
         if picking_detail_info:
             pick_order_no = picking_detail_info.get("pickOrderNo")
-            tray_infos = []     # 装托的sku信息
+            tray_infos = []  # 装托的sku信息
             # 通过获取拣货单内已拣货sku信息列表数据，拼接按需装托相关参数
             for i in picking_detail_info.get("details"):
-                #将参数按sku数量拆散
+                # 将参数按sku数量拆散
                 for j in range(i["realPickQty"]):
                     sku_info = {
                         "id": i["id"],
@@ -97,11 +97,11 @@ class PdaController(RequestOperator):
                             'batchNo': ''
                         }]
                     }
-                    #装托的参数拆散后，追加到某个列表内
+                    # 装托的参数拆散后，追加到某个列表内
                     tray_infos.append(sku_info)
-            #打乱待装托参数的列表，实现后续随机装托
+            # 打乱待装托参数的列表，实现后续随机装托
             random.shuffle(tray_infos)
-            #待装托的参数列表，按照传入的装托库位个数打散成不同的子列表，便于后续装托请求参数拼接
+            # 待装托的参数列表，按照传入的装托库位个数打散成不同的子列表，便于后续装托请求参数拼接
             for i in range(0, len(location_code_list)):
                 tray_info = tray_infos[i::len(location_code_list)]
                 item = {
@@ -146,7 +146,6 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-
     def pda_review_submit(self, box_no, location_code):
         """
         调拨复核
@@ -190,7 +189,25 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-    def pda_delivery_confirm(self, hand_over_no):
+    def pda_logistics_update(self, ids: list, express_type: int = 2):
+        """
+        调拨发货-交接单-维护物流
+        @param ids:交接单id列表
+        @param express_type: 运输方式：1-海运，2-空运， 3-陆运， 4-铁运， 5-快递
+        @return:
+        """
+        wms_api_config.get("pda_logistics_update")["data"].update({
+            "ids": ids,
+            "expressType": express_type
+        })
+        try:
+            res = self.send_request(**wms_api_config.get("pda_logistics_update"))
+            print("调拨发货-交接单-维护物流：", res)
+            return res
+        except Exception as e:
+            raise Exception("err_info:", e)
+
+    def pda_delivery_confirm(self, hand_over_no: str):
         """
         调拨发货
         @return:
@@ -204,7 +221,6 @@ class PdaController(RequestOperator):
             return res
         except Exception as e:
             raise Exception("err_info:", e)
-
 
     def pda_transfer_in_confirm(self, hand_over_no):
         """
@@ -221,8 +237,6 @@ class PdaController(RequestOperator):
             return res
         except Exception as e:
             raise Exception("err_info:", e)
-
-
 
     def pda_transfer_in_receive_all(self, box_no, storage_location_code, transfer_in_no):
         """
@@ -262,7 +276,6 @@ class PdaController(RequestOperator):
         except Exception as e:
             raise Exception("err_info:", e)
 
-
     def pda_transfer_in_receive_one(self, info):
         """
         调拨入库-逐渐上架
@@ -279,10 +292,9 @@ class PdaController(RequestOperator):
             raise Exception("err_info:", e)
 
 
-
 if __name__ == '__main__':
-
     pda = PdaController()
+    """
     box_no = 'DC2210210012-1'
     sj_kw = ["KW-SJQ-01"]
     info = pda.pda_transfer_in_box_scan(box_no).get("data")
@@ -299,7 +311,7 @@ if __name__ == '__main__':
     "从这里继续"
 
     print(info)
-
+    """
     """
     # pda.wms.switch_warehouse("UKBH01")
     pick_order_no = "DJH2210210005"
@@ -350,9 +362,18 @@ if __name__ == '__main__':
     # box_no = "DC2204120030-1"
     # pda.pda_review_submit(box_no, location_code)
     # pda.pda_handover_bind(box_no)
-    # handover_no = "DBJJ2204120030"
-    # pda.pda_delivery_confirm(handover_no)
+    pda.wms.switch_warehouse("0517-3")
+    handover_no = "CJJJ2307070001"
+    # pda.pda_delivery_confirm(handover_no)     #发货
+    # pda.pda_transfer_in_confirm(handover_no)    #收货
 
-
-
-
+    data = {
+        "boxNo": "CJDC2307070001-1",
+        "storageLocationCode": "KW-SJQ-01",
+        "transferInNo": "CJDR2307070001",
+        "details": [{
+            "waresSkuCode": "53586714577B01",
+            "quantity": 2
+        }]
+    }
+    pda.pda_transfer_in_receive_one(data)

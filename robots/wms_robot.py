@@ -436,6 +436,7 @@ class WmsServiceRobot(ServiceRobot):
             return res
         else:
             log.error(res)
+            print("新增调拨需求：", res)
             return
 
     def transfer_demand_cancel(self, demand_code):

@@ -1,4 +1,4 @@
-#当前配置已废除不用
+# 当前配置已废除不用
 
 wms_api_config = {
     # 获取全部仓库信息列表
@@ -16,7 +16,7 @@ wms_api_config = {
         "method": "put",
         "data": {"dataPermId": 1}
     },
-    #获取sku相关信息
+    # 获取sku相关信息
     "get_by_wareSkuCode": {
         "uri_path": "/api/ec-wms-api/sku-search/getByWareSkuCode",
         "method": "get",
@@ -244,6 +244,21 @@ wms_api_config = {
         }
     },
 
+    # PDA-调拨发货-交接单-维护物流
+    "pda_logistics_update": {
+        "uri_path": "/api/ec-wms-api/transferOut/handover/logistics/update/v2",
+        "method": "post",
+        "data": {
+            "ids": [5283],
+            # "expressTypeIndex": 1,
+            "logisticsMerchant": "",
+            "logisticsNo": "",
+            "remark": "",
+            "eta": None,
+            "expressType": 2
+        }
+    },
+
     # PDA-调拨发货-发货
     "pda_delivery_confirm": {
         "uri_path": "/api/ec-wms-api/transferOut/handover/delivery/confirm",
@@ -299,9 +314,9 @@ wms_api_config = {
         "uri_path": "/api/ec-wms-api/transferIn/input/box/scan/pda",
         "method": "post",
         "data": {
-                    "boxNo": "DC2210210012-1",
-                    "type": 2,  #类型 1整箱 2-逐件
-                }
+            "boxNo": "DC2210210012-1",
+            "type": 2,  # 类型 1整箱 2-逐件
+        }
     },
 
     # PDA-调拨入库-逐渐上架
@@ -309,17 +324,15 @@ wms_api_config = {
         "uri_path": "/api/ec-wms-api/transferIn/input/sku/shelf",
         "method": "post",
         "data": {
-                    "boxNo": "DC2210210012-1",
-                    "storageLocationCode": "KW-SJQ-01",
-                    "transferInNo": "DR2210210011",
-                    "details": [{
-                        "waresSkuCode": "53586714577C01",
-                        "quantity": 1
-                    }]
-                }
+            "boxNo": "DC2210210012-1",
+            "storageLocationCode": "KW-SJQ-01",
+            "transferInNo": "DR2210210011",
+            "details": [{
+                "waresSkuCode": "53586714577C01",
+                "quantity": 1
+            }]
+        }
     },
-
-
 
     # 仓间调拨-查询sku信息
     "cj_sku_info_page": {
@@ -357,7 +370,7 @@ wms_api_config = {
             "platformTransferOutCodeList": [],
             "skuCodeList": [],
             "saleSkuCodeList": [],
-            "inState": None, #接收列表类型数据 [0,1,2,3]
+            "inState": None,  # 接收列表类型数据 [0,1,2,3]
             "receiveWarehouseId": None,
             "boxOrderNos": [],
             "pickOrderNos": [],

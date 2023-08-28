@@ -1,8 +1,5 @@
 from data_maker import *
-from data_maker.test_create_trf_demand import create_demand_all
 import time
-
-
 class WmsMaker:
     def __init__(self):
         self.time_tamp = int(time.time() * 1000)
@@ -51,8 +48,10 @@ class WmsMaker:
     def transfer_maker(self, delivery_warehouse_code, delivery_target_warehouse_code, receive_warehouse_code,
                        receive_target_warehouse_code, goods_sku_code, demand_qty, bom_version, delivery_kw_tp_code_list,
                        receive_kw_sj_code_list):
+
         # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
+
 
         # 新增调拨需求--返回备注字段信息
         demand_code = self.wms_service_robot.transfer_demand_creat(delivery_warehouse_code,
@@ -60,18 +59,14 @@ class WmsMaker:
                                                                    receive_warehouse_code,
                                                                    receive_target_warehouse_code,
                                                                    goods_sku_code, demand_qty, bom_version)
-        print(111, demand_code)
-        """
-         # 获取新增的调拨需求-oms上游单号（通过备注字段信息搜索出相关oms备货计划单号）
-        res = self.oms.demand_page(remark)
-        oms_demand_list = res.get("data")["records"]
-        source_code_list = []
-        for i in oms_demand_list:
-            source_code_list.append(i.get(("linkNo")))
+
+        # demand_code = ["XQ2307060016", "XQ2307060017"]
         # 查询调拨需求请求参数
         kw = {
-            "sourceCodeList": source_code_list,
+            "demandCodeList": [demand_code],
+            # "demandCodeList": demand_code#临时用
         }
+        print(kw)
         # 查询生成的调拨需求列表
         res = self.wms.demand_list(**kw)
         # 获取调拨需求相关信息
@@ -81,10 +76,10 @@ class WmsMaker:
         res = self.wms.picking_create(demands_info)
         # 获取调拨拣货单号
         pick_order_no = res.get("data")
-        pick_order_no = 'DJH2306160010'
+        # pick_order_no = 'DJH2306160010'
         # 分配拣货人
         self.wms.assign_pick_user(pick_order_no)
-        
+
         # 获取拣货单信息
         picking_info = self.wms.picking_detail(pick_order_no)
 
@@ -97,10 +92,10 @@ class WmsMaker:
         picking_detail_info = info.get("data")
 
         # 按需装托
-        #按需装托在单个库位上
-        # self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
-        #按需装托在多个库位上
-        self.pda.pda_submit_tray_info_many(delivery_kw_tp_code_list, picking_detail_info)
+        # 按需装托在单个库位上
+        self.pda.pda_submit_tray_info(delivery_kw_tp_code_list, picking_detail_info)
+        # 按需装托在多个库位上
+        # self.pda.pda_submit_tray_info_many(delivery_kw_tp_code_list, picking_detail_info)
 
         # pick_order_no = 'DJH2210260010'
         # 创建出库单以及生成箱单
@@ -115,21 +110,23 @@ class WmsMaker:
         res = self.wms.search_box_out_list(**kw)
         box_no_list = res.get("data")["records"]
 
-
         # 调拨复核
         for i in box_no_list:
             self.pda.pda_review_submit(i.get("boxNo"), i.get("storageLocationCode"))
-        """
         """
         # 调拨发货交接
         for i in box_no_list:
             res = self.pda.pda_handover_bind(i.get("boxNo"))
         handover_no = res.get("data")["handoverNo"]
-        # 调拨发货
+        handover_ids = [res.get("data")["id"]]
+
+        # 调拨发货-维护物流
+        self.pda.pda_logistics_update(handover_ids)
+        # 调拨发货-发货
         self.pda.pda_delivery_confirm(handover_no)
 
         
-        handover_no = "DBJJ2302220001"
+        # handover_no = "DBJJ2307190001"
         # 切换到收货仓库货仓库
         self.wms.switch_warehouse(receive_warehouse_code)
         # 调拨入库--确认收货
@@ -148,12 +145,14 @@ class WmsMaker:
         # 调拨入库-整箱上架
         for i in box_no_info:
             self.pda.pda_transfer_in_receive_all(i.get("boxNo"), receive_kw_sj_code_list[0], i.get("transferInNo"))
-        """
 
-    def cj_transfer_maker(self, delivery_warehouse_code, receive_warehouse_code, sku_info_list, receive_kw_sj_code_list):
+    """
+    def cj_transfer_maker(self, delivery_warehouse_code, receive_warehouse_code, sku_info_list,
+                          receive_kw_sj_code_list):
+        # """
         # 切换到发货仓库
         self.wms.switch_warehouse(delivery_warehouse_code)
-        # """
+
         # 获取即将新增仓间调拨的sku_code列表
         sku_code_list = []
         for i in sku_info_list:
@@ -197,10 +196,10 @@ class WmsMaker:
         # 仓间调拨-发货
         res = self.wms.cj_deliver_inner(instruct_order_id)
         handover_no = res.get("data")["handoverOrderNo"]
-
+        # """
 
         # 切换到收货仓库货仓库
-        # handover_no = "CJJJ2210240001"
+        # handover_no = "CJJJ2307040001"
         self.wms.switch_warehouse(receive_warehouse_code)
         # 调拨入库--确认收货
         self.pda.pda_transfer_in_confirm(handover_no)
@@ -238,18 +237,17 @@ if __name__ == '__main__':
 
     sku_list = [
         {
-            "code": "J011194-2V",#JFW28445H5B01  J011194-2VA01    JF5891A6J4A01    53586714577C01
+            "code": "53586714577",  # JFW28445H5B01  J011194-2VA01    JF5891A6J4A01    53586714577C01
             "type": 1,
-            "bom_version": "A",
+            "bom_version": "C",
             "num": 2
         }
     ]
-    #160环境
-    transfer.transfer_maker("UKBH01", "", "UKBH02", "", "53586714577", 1, "C", ["KW-RQ-TP-06"], ["KW-SJQ-01"])
-    # transfer.transfer_maker("UKBH01", "", "FSZZ", "LA01", sku_list, ["KW-RQ-TP-08"], ["KW-SJQ-01"])
-    # transfer.transfer_maker("FSBH", "", "UKBH01", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
-    # transfer.transfer_maker("FSZZ", "LA01", "LA01", "", sku_list, ["KW-RQ-TP-01"], ["KW-SJQ-01"])
-    #189环境
+    # 160环境
+    # transfer.transfer_maker("LELE-ZF1", "", "LELE-FH1", "", "53586714577", 1, "A", ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    # transfer.transfer_maker("0517-1", "", "0517-3", "", "53586714577", 1, "C",  ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    transfer.transfer_maker("LELE-BH", "", "LELE-ZF", "LELE-ZF", "53586714577", 1, "C",  ["KW-RQ-TP-01"], ["KW-SJQ-01"])
+    # 189环境
     # transfer.transfer_maker("KWDR-TEST", "", "LELE-BH", "", sku_list, ["KW-RQ-TP-01", "KW-RQ-TP-02", "KW-RQ-TP-03"], ["KW-SJQ-01"])
     # transfer.transfer_maker("LELE-ZZ", "LELE-ZF", "LELE-ZF", "", sku_list, ["KW-RQ-TP-01","KW-RQ-TP-03"], ["KW-SJQ-01"])
     # 新增调拨需求--uat环境
@@ -259,4 +257,4 @@ if __name__ == '__main__':
     sku_info_list = [
         {"sku_code": "53586714577C01", "num": 1},
     ]
-    # transfer.cj_transfer_maker("UKBH01", "UKBH02", sku_info_list, ["KW-SJQ-01"])
+    # transfer.cj_transfer_maker("LELE-BH", "LELE-FH2", sku_info_list, ["KW-SJQ-01"])
