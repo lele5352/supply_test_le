@@ -78,6 +78,8 @@ class PdaController(RequestOperator):
         :param picking_detail_info: 拣货单信息，可通过pda_picking_detail()方法获取
         :return:
         """
+        # batch_no = ['FH01', 'FH02']
+        batch_no = ['FH01']
         if picking_detail_info:
             pick_order_no = picking_detail_info.get("pickOrderNo")
             tray_infos = []  # 装托的sku信息
@@ -94,7 +96,7 @@ class PdaController(RequestOperator):
                         "skuQty": 1,
                         'batchInfos': [{
                             'skuQty': 1,
-                            'batchNo': ''
+                            'batchNo': random.choice(batch_no)
                         }]
                     }
                     # 装托的参数拆散后，追加到某个列表内

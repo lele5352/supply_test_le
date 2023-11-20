@@ -461,12 +461,19 @@ class WmsServiceRobot(ServiceRobot):
 
 if __name__ == '__main__':
     # sku_code = "53586714577C01"
-    wms =WmsAppRobot()
+    # wms =WmsAppRobot()
 
     # wms = WmsAppRobot().do_picking("123")
-    # wms_ser = WmsServiceRobot("transfer").transfer_demand_creat("UKBH01", "", "UKBH02", "", "53586714577", 1, "C")
+    """
+    "LELE-BH", "", "LELE-ZF", "LELE-ZF", "HW9493FU49", 2, "A"
+    "LELE-BH", "", "LELE-ZF", "LELE-ZF", "HW9493FU49", 2, "C"
+    "LELE-BH", "", "LELE-ZF", "LELE-ZF", "HW6526W5Y5", 2, "A"
+    """
+    wms_ser = WmsServiceRobot("transfer").transfer_demand_creat("LELE-BH", "", "LELE-ZF", "LELE-ZF", "HW6526W5Y5", 10,
+                                                                "A")
+    # wms_ser = WmsServiceRobot("transfer").transfer_demand_creat("LELE-BH", "", "PPBH", "", "HW6526W5Y5",
+    #                                                             2, "A")
+
     # wms_ser = WmsServiceRobot("transfer").transfer_demand_cancel("XQ2303290008")
     # wms = WmsAppRobot().demand_list(demand_code_list=['XQ2303080010'])
-    wms.get_warehouse_info("UKBH01")
-
-
+    # wms.get_warehouse_info("UKBH01")
