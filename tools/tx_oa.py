@@ -265,3 +265,10 @@ if __name__ == '__main__':
 
     tx_oa_new(excel_path, summary_sheet)
     # tx_tapd(excel_path, 'TAPD-主表')
+
+#人才引进申办个人登记
+#https://gzrsj.rsj.gz.gov.cn/vsgzhr/PersonalPortal/home.aspx
+# http://gzrsj.rsj.gz.gov.cn/vsgzrcyjbys/SubSystem.aspx?PATH=RCYJ&token=A39F18B289D9468D29140006039234DA2FA199BAA2&SSOID=002&TOKENID=aXQ3S2RndGg3RGFESkZ5Yk80S016dz09
+
+#企查查
+# https://www.qcc.com/firm/4c805bbca0325fb1020d31384bef4fee.html
